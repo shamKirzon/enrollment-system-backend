@@ -1,12 +1,3 @@
-<!doctype html>
-<html lang="en">
-
-<head>
-  <title>Enrollment</title>
-</head>
-
-<body>
-  Hello
-</body>
-
-</html>
+<?php
+$FRONTEND_URL = "http://localhost:5173";
+?>

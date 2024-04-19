@@ -1,15 +1,10 @@
 <?php
-require_once "../db.php";
-session_start();
+require_once "../../db.php";
+require_once "../../session.php";
 
 $pdo = getConnection();
 
-
-header('Content-Type: application/json');
-
 if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-  http_response_code(405); // Method Not Allowed
-  echo json_encode(['message' => "Unsupported request method."]);
   exit;
 }
 
@@ -33,6 +28,8 @@ $user_cred = [
 $stmt->execute($user_cred);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
+header('Content-Type: application/json');
+
 $is_pass_verified = password_verify($password, $user['password']);
 
 if (!$is_pass_verified) {
@@ -42,7 +39,8 @@ if (!$is_pass_verified) {
 }
 
 unset($user['password']);
+set_session($user['id']);
 http_response_code(200);
 
-echo json_encode(['message' => "Successfully logged in.", 'data' => ['user' => $user]]);
+echo json_encode(['message' => "Successfully logged in.", 'user' => $user, "session" => $_SESSION['session']]);
 ?>

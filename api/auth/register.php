@@ -1,13 +1,10 @@
 <?php
 require_once "../db.php";
+require_once "../session.php";
 
 $pdo = getConnection();
 
-header('Content-Type: application/json');
-
 if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-  http_response_code(405); // Method Not Allowed
-  echo json_encode(['message' => "Unsupported request method."]);
   exit;
 }
 
@@ -39,6 +36,7 @@ $user_data = [
 
 $exec = $stmt->execute($user_data);
 
+header('Content-Type: application/json');
 
 if (!$exec) {
   http_response_code(500);
@@ -47,5 +45,5 @@ if (!$exec) {
 }
 
 http_response_code(201);
-echo json_encode(['message' => "Successfully registered user.", 'foo' => $_SESSION['session']]);
+echo json_encode(['message' => "Successfully registered user."]);
 ?>
