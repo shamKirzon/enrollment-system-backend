@@ -22,7 +22,7 @@ if (!$academic_years) {
   exit;
 }
 
-http_response_code(201);
+http_response_code(200);
 
 echo json_encode(['message' => "Successfully fetched academic years.", 'data' => ['academic_years' => $academic_years]]);
 ?>

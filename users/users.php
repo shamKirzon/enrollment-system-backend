@@ -18,7 +18,7 @@ if (!$users) {
   exit;
 }
 
-http_response_code(201);
+http_response_code(200);
 
 echo json_encode(['message' => "Successfully fetched users.", 'data' => ['users' => $users]]);
 ?>

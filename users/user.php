@@ -28,7 +28,7 @@ if (!$exec || !$user) {
   exit;
 }
 
-http_response_code(201);
+http_response_code(200);
 
 echo json_encode(['message' => "Successfully fetched user.", 'data' => ['user' => $user]]);
 ?>

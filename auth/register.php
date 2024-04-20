@@ -47,5 +47,5 @@ if (!$exec) {
 }
 
 http_response_code(201);
-echo json_encode(['message' => "Successfully registered user.", 'foo' => $_SESSION['session']]);
+echo json_encode(['message' => "Successfully registered user."]);
 ?>
