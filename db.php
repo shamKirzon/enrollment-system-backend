@@ -15,5 +15,5 @@ function getConnection(): PDO {
     exit; // Terminate script on connection error
   }
 }
-
+// hello 
 ?>
