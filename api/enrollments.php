@@ -14,9 +14,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $limit = isset($_GET['limit']) ? $_GET['limit'] : 12;
     $offset = ($page - 1) * $limit;
 
-    $pdo->beginTransaction(); // Start Transaction
+    $pdo->beginTransaction(); 
 
-    // Count query
     $countSql = "
       SELECT COUNT(*) AS total_count
       FROM enrollments e
@@ -46,16 +45,15 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     $countStmt = $pdo->prepare($countSql);
     $countStmt->execute($countParams);
-    $totalCount = $countStmt->fetchColumn(); // Fetch single column (total_count)
+    $totalCount = $countStmt->fetchColumn();
 
     if (!$totalCount) {
-      $pdo->rollBack(); // Rollback if no enrollments found
+      $pdo->rollBack(); 
       http_response_code(400);
       echo json_encode(['message' => "No enrollments found."]);
       exit;
     }
 
-    // Data fetching query (similar to before)
     $sql = "
       SELECT e.*, u.first_name, u.middle_name, u.last_name, ay.start_at AS ay_start_at, ay.end_at AS ay_end_at, yl.name AS level
       FROM enrollments e
@@ -100,13 +98,13 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $enrollments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (!$enrollments) {
-      $pdo->rollBack(); // Rollback if no enrollments fetched
+      $pdo->rollBack(); 
       http_response_code(400);
       echo json_encode(['message' => "Failed to fetch enrollments."]);
       exit;
     }
 
-    $pdo->commit(); // Commit transaction if successful
+    $pdo->commit(); 
 
     http_response_code(200);
     echo json_encode([
@@ -121,19 +119,52 @@ switch ($_SERVER['REQUEST_METHOD']) {
   case 'POST':
     break;
   case 'PATCH':
-    break;
-
-  case 'DELETE':
     $id = $_GET['id'];
+
+    $json_data = json_decode(file_get_contents('php://input'), true);
+
+    $status = $json_data['status'];
 
     $stmt = $pdo->prepare(
       "
-      DELETE FROM enrollments 
+      UPDATE enrollments
+      SET status = ?
       WHERE id = ?
       "
     );
 
-    $exec = $stmt->execute([$id]);
+    $exec = $stmt->execute([$status, $id]);
+
+    if(!$exec){
+      http_response_code(500);
+      echo json_encode(['message' => "Failed to update enrollment."]);
+      exit;
+    }
+
+    http_response_code(200); 
+    echo json_encode(['message' => "Successfully updated enrollment."]);
+
+    break;
+
+  case 'DELETE':
+    $id = $_GET['id'];
+    $ids = json_decode(file_get_contents('php://input'), true);
+
+    $sql = "
+    DELETE FROM enrollments 
+    WHERE id IN (
+    ";
+
+    if(!empty($ids)) {
+      $placeholders = array_fill(0, count($ids), '?');
+      $sql .= implode(', ', $placeholders);
+    }
+
+    $sql .= ")";
+
+    $stmt = $pdo->prepare($sql);
+
+    $exec = $stmt->execute($ids);
 
     if(!$exec){
       http_response_code(500);
