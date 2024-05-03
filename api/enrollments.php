@@ -11,13 +11,13 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $enrollment_status = isset($_GET['status']) ? $_GET['status'] : null;
     $year_level_id = isset($_GET['level']) ? $_GET['level'] : null;
     $page = isset($_GET['page']) ? $_GET['page'] : 1;
-    $limit = isset($_GET['limit']) ? $_GET['limit'] : 12;
+    $limit = isset($_GET['limit']) ? $_GET['limit'] : 10;
     $offset = ($page - 1) * $limit;
 
     $pdo->beginTransaction(); 
 
     $countSql = "
-      SELECT COUNT(*) AS total_count
+      SELECT COUNT(*) AS count
       FROM enrollments e
     ";
 
@@ -45,9 +45,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     $countStmt = $pdo->prepare($countSql);
     $countStmt->execute($countParams);
-    $totalCount = $countStmt->fetchColumn();
+    $count = $countStmt->fetchColumn();
 
-    if (!$totalCount) {
+    if (!$count) {
       $pdo->rollBack(); 
       http_response_code(400);
       echo json_encode(['message' => "No enrollments found."]);
@@ -55,7 +55,18 @@ switch ($_SERVER['REQUEST_METHOD']) {
     }
 
     $sql = "
-      SELECT e.*, u.first_name, u.middle_name, u.last_name, ay.start_at AS ay_start_at, ay.end_at AS ay_end_at, yl.name AS level
+      SELECT e.*, u.first_name, u.middle_name, u.last_name, 
+        ay.start_at AS ay_start_at, 
+        ay.end_at AS ay_end_at, 
+        yl.name AS level,
+        CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM enrollments sub_e
+              WHERE sub_e.student_id = u.id AND sub_e.id < e.id
+          ) THEN 'old'
+          ELSE 'new'
+        END AS student_status
       FROM enrollments e
       JOIN users u ON e.student_id = u.id
       JOIN academic_years ay ON e.academic_year_id = ay.id
@@ -111,12 +122,16 @@ switch ($_SERVER['REQUEST_METHOD']) {
       'message' => "Successfully fetched enrollments.",
       'data' => [
         'enrollments' => $enrollments,
-        'total_count' => $totalCount,
+        'count' => $count,
       ],
     ]);
     break;
 
   case 'POST':
+
+    // Insert enrollments here
+
+
     break;
   case 'PATCH':
     $id = $_GET['id'];

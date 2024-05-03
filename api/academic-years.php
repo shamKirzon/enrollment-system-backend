@@ -7,26 +7,59 @@ header('Content-Type: application/json');
 
 switch ($_SERVER['REQUEST_METHOD']) {
   case 'GET':
-    $academic_years = $pdo->query(
-      "
+    $page = isset($_GET['page']) ? $_GET['page'] : 1;
+    $limit = isset($_GET['limit']) ? $_GET['limit'] : 10;
+    $offset = ($page - 1) * $limit;
+
+    $pdo->beginTransaction(); 
+
+    $count_sql = "
+      SELECT COUNT(*) AS count
+      FROM academic_years
+    ";
+
+    $count_stmt = $pdo->prepare($count_sql);
+    $count_stmt->execute();
+    $count = $count_stmt->fetchColumn();
+
+    if (!$count) {
+      $pdo->rollBack(); 
+      http_response_code(400);
+      echo json_encode(['message' => "No enrollments found."]);
+      exit;
+    }
+
+    $sql = "
       SELECT ay.*, COUNT(e.id) AS student_count
       FROM academic_years ay
       LEFT JOIN enrollments e ON ay.id = e.academic_year_id
       GROUP BY ay.id, ay.start_at, ay.end_at, ay.status
       ORDER BY ay.start_at DESC
-      LIMIT 25
-      "
-    )->fetchAll(PDO::FETCH_ASSOC);
+    ";
+
+    $sql .= " LIMIT " . $limit;
+    $sql .= " OFFSET " . $offset;
+
+    $academic_years = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 
     if (!$academic_years) {
+      $pdo->rollBack(); 
       http_response_code(400);
       echo json_encode(['message' => "Failed to fetch academic years."]);
       exit;
     }
 
+    $pdo->commit(); 
+
     http_response_code(200);
 
-    echo json_encode(['message' => "Successfully fetched academic years.", 'data' => ['academic_years' => $academic_years]]);
+    echo json_encode([
+      'message' => "Successfully fetched academic years.",
+      'data' => [
+        'academic_years' => $academic_years,
+        'count' => $count
+      ]
+    ]);
     break;
 
   case 'POST':
