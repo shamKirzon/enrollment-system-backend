@@ -128,9 +128,38 @@ switch ($_SERVER['REQUEST_METHOD']) {
     break;
 
   case 'POST':
+    $json_data = json_decode(file_get_contents('php://input'), true);
 
-    // Insert enrollments here
+    $tuition_plan = $json_data['tuition_plan'];
+    $academic_year_id = $json_data['academic_year_id'];
+    $year_level_id = $json_data['year_level_id'];
+    $student_id = $json_data['student_id'];
+    $amount = $json_data['amount'];
+    $payment_receipt = $_FILES['payment_receipt'];
 
+    $pdo->beginTransaction(); 
+
+    $transaction_sql = "
+    INSERT INTO transactions (id, amount, payment_receipt_url)
+    VALUES (uuid(), ?, ?)
+    ";
+
+    $stmt = $pdo->prepare($transaction_sql);
+    $stmt->execute([$amount, 'hello/world']);
+    $transaction = $stmt->fetch();
+
+    $enrollment_sql = "
+    INSERT INTO enrollments (tuition_plan, payment_receipt_url, student_id, academic_year_id, year_level_id, transaction_id) 
+    VALUES (?, ?, ?, ?, ?, ?)
+    ";
+
+    $stmt = $pdo->prepare($enrollment_sql);
+    $stmt->execute([$tuition_plan, 'hello/world', $student_id, $academic_year_id, $year_level_id, $transaction['id']]);
+
+    $pdo->commit(); 
+
+    http_response_code(201); 
+    echo json_encode(['message' => "Successfully submitted enrollment."]);
 
     break;
   case 'PATCH':

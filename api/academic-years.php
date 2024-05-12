@@ -32,7 +32,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $sql = "
       SELECT ay.*, COUNT(e.id) AS student_count
       FROM academic_years ay
-      LEFT JOIN enrollments e ON ay.id = e.academic_year_id
+      LEFT JOIN enrollments e ON ay.id = e.academic_year_id AND e.status = 'done'
       GROUP BY ay.id, ay.start_at, ay.end_at, ay.status
       ORDER BY ay.start_at DESC
     ";
@@ -84,7 +84,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
       exit;
     }
 
-    http_response_code(200); 
+    http_response_code(201); 
     echo json_encode(['message' => "Successfully inserted academic year."]);
     break;
   case 'PATCH':
