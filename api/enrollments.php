@@ -55,22 +55,17 @@ switch ($_SERVER['REQUEST_METHOD']) {
     }
 
     $sql = "
-      SELECT e.*, u.first_name, u.middle_name, u.last_name, 
+      SELECT e.id, e.enrolled_at, e.section, e.tuition_plan, e.status, e.student_id, e.academic_year_id, e.year_level_id,
+        u.first_name, u.middle_name, u.last_name, 
         ay.start_at AS ay_start_at, 
         ay.end_at AS ay_end_at, 
         yl.name AS level,
-        CASE
-          WHEN EXISTS (
-              SELECT 1
-              FROM enrollments sub_e
-              WHERE sub_e.student_id = u.id AND sub_e.id < e.id
-          ) THEN 'old'
-          ELSE 'new'
-        END AS student_status
+        t.payment_receipt_url
       FROM enrollments e
       JOIN users u ON e.student_id = u.id
       JOIN academic_years ay ON e.academic_year_id = ay.id
       JOIN year_levels yl ON e.year_level_id = yl.id
+      JOIN transactions t ON e.transaction_id = t.id
     ";
 
     $conditions = array();
@@ -97,15 +92,14 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     $sql .= "
       GROUP BY
-        e.id, e.enrolled_at, e.section, e.tuition_plan, e.status, e.payment_receipt_url, e.student_id, e.academic_year_id, e.year_level_id,
+        e.id, e.enrolled_at, e.section, e.tuition_plan, e.status, e.transaction_id, e.student_id, e.academic_year_id, e.year_level_id,
         ay.id, ay.start_at, ay.end_at, ay.status
       ORDER BY e.enrolled_at
     ";
-    $sql .= " LIMIT " . $limit;
-    $sql .= " OFFSET " . $offset;
+    $sql .= " LIMIT " . $limit . " OFFSET " . $offset;
 
     $stmt = $pdo->prepare($sql);
-    $stmt->execute($params);
+    $stmt->execute();
     $enrollments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (!$enrollments) {

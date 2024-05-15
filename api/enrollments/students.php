@@ -1,6 +1,6 @@
 <?php
-require_once "../db.php";
-require_once "../file-manager.php";
+require_once "../../db.php";
+require_once "../../file-manager.php";
 
 $pdo = getConnection();
 
@@ -51,9 +51,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
       $stmt = $pdo->prepare($sql);
       $stmt->execute([$user_id]);
-      $academic_year_enrollment = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      $academic_year_enrollments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-      if ($academic_year_enrollment === false) {
+      if ($academic_year_enrollments === false) {
         $pdo->rollBack(); 
         http_response_code(400);
         echo json_encode(['message' => "Failed to fetch enrolled academic years."]);
@@ -67,7 +67,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
       echo json_encode([
         'message' => "Successfully fetched enrolled academic years.",
         'data' => [
-          'academic_year_enrollment' => $academic_year_enrollment,
+          'academic_year_enrollments' => $academic_year_enrollments,
           'count' => $count
         ]
       ]);
