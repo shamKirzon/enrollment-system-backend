@@ -79,6 +79,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
     break;
 
   case 'POST':
+
     try {
       $json_data = json_decode(file_get_contents('php://input'), true);
 
@@ -87,12 +88,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
       $year_level_id = $json_data['year_level_id'];
       $student_id = $json_data['student_id'];
       $amount = $json_data['amount'];
-      // $transaction_number = $json_data['transaction_number'];
-      // $payment_receipt = $_FILES['payment_receipt'];
-      //
-      // $root_dir = get_root_dir();
-      // move_uploaded_file($payment_receipt['tmp_name'], $root_dir);
-      // $payment_receipt_url = $root_dir . pathinfo($payment_receipt['name'], PATHINFO_EXTENSION);
+      $payment_receipt_url = $json_data['payment_receipt_url'];
 
       $pdo->beginTransaction(); 
 
@@ -110,8 +106,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
       ";
 
       $stmt = $pdo->prepare($transaction_sql);
-      $stmt->execute([$transaction_id, $amount, 'hello/world']);
-      // $transaction = $stmt->fetch(PDO::FETCH_ASSOC);
+      $stmt->execute([$transaction_id, $amount, $payment_receipt_url]);
 
       $enrollment_sql = "
       INSERT INTO enrollments (tuition_plan, student_id, academic_year_id, year_level_id, transaction_id) 
@@ -124,7 +119,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
       $pdo->commit(); 
 
       http_response_code(201); 
-      echo json_encode(['message' => "Successfully submitted enrollment.", "foo" => $transaction_id]);
+      echo json_encode(['message' => "Successfully submitted enrollment."]);
     } catch (\Throwable $th) {
       $pdo->rollBack();
       http_response_code($th->getCode());

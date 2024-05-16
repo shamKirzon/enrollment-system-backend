@@ -25,8 +25,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $sql .= " ORDER BY CAST(SUBSTRING(id, 2) AS UNSIGNED)";
 
     $stmt = $pdo->prepare($sql);
-    $stmt->execute();
-    // $stmt->execute($params);
+    $stmt->execute($params);
     $year_levels = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (!$year_levels) {

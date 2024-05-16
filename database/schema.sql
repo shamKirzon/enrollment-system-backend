@@ -82,6 +82,30 @@ CREATE TABLE tuition_plan_levels (
   tuition_plan_id VARCHAR(20) NOT NULL,
   year_level_id VARCHAR(255) NOT NULL,
 
-  FOREIGN KEY (tuition_plan_id) REFERENCES tuition_plans(id),
-  FOREIGN KEY (year_level_id) REFERENCES year_levels(id)
+  FOREIGN KEY (tuition_plan_id) REFERENCES tuition_plans(id) ON DELETE CASCADE,
+  FOREIGN KEY (year_level_id) REFERENCES year_levels(id) ON DELETE CASCADE
+)
+
+CREATE TABLE tuitions (
+  id VARCHAR(20) PRIMARY KEY,
+  amount DECIMAL(10, 2) UNSIGNED NOT NULL DEFAULT 0.0,
+  year_level_id VARCHAR(255) NOT NULL,
+)
+
+--- Subjects
+
+CREATE TABLE subjects (
+  id VARCHAR(50) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+)
+
+CREATE TABLE subject_levels (
+  id VARCHAR(50) PRIMARY KEY,
+  subject_id VARCHAR(50) NOT NULL,
+  year_level_id VARCHAR(255) NOT NULL,
+  strand_id VARCHAR(255),
+
+  FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
+  FOREIGN KEY (year_level_id) REFERENCES year_levels(id) ON DELETE CASCADE,
+  FOREIGN KEY (strand_id) REFERENCES year_levels(strand) ON DELETE CASCADE
 )
