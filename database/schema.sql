@@ -19,20 +19,22 @@ VALUES
     ('g12', 'Grade 12');
 
 CREATE TABLE sections (
-  id VARCHAR(255) PRIMARY KEY,
+  id VARCHAR(100) PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
 )
 
+-- Only for SHS
 CREATE TABLE strands (
-  id VARCHAR(255) PRIMARY KEY,
+  id VARCHAR(100) PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
 )
 
 CREATE TABLE section_levels (
   id VARCHAR(255) PRIMARY KEY,
-  section_id VARCHAR(255) NOT NULL,
+  section_id VARCHAR(100) NOT NULL,
   year_level_id VARCHAR(255) NOT NULL,
-  strand_id VARCHAR(255) 
+  -- Strands only apply for SHS
+  strand_id VARCHAR(100) 
 )
 
 -- Transactions

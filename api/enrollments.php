@@ -1,5 +1,6 @@
 <?php
 require_once "../db.php";
+require_once "../file-manager.php";
 
 $pdo = getConnection();
 
@@ -53,13 +54,23 @@ switch ($_SERVER['REQUEST_METHOD']) {
         throw new Exception("No enrollments found.", 400);
       }
 
+      $root_dir = get_root_dir();
+
       $sql = "
         SELECT e.id, e.enrolled_at, e.section, e.tuition_plan, e.status, e.student_id, e.academic_year_id, e.year_level_id,
           u.first_name, u.middle_name, u.last_name, 
           ay.start_at AS ay_start_at, 
           ay.end_at AS ay_end_at, 
           yl.name AS level,
-          t.payment_receipt_url
+          CONCAT('$root_dir', t.payment_receipt_url) AS payment_receipt_url,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM enrollments sub_e
+              WHERE sub_e.student_id = u.id AND sub_e.id <> e.id AND sub_e.enrolled_at < e.enrolled_at
+            ) THEN 'old'
+            ELSE 'new'
+          END AS student_status
         FROM enrollments e
         JOIN users u ON e.student_id = u.id
         JOIN academic_years ay ON e.academic_year_id = ay.id
@@ -114,6 +125,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
         'data' => [
           'enrollments' => $enrollments,
           'count' => $count,
+          'foo' => get_root_dir()
         ],
       ]);
     } catch (\Throwable $th) {
