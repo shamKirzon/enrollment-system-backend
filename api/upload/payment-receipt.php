@@ -19,11 +19,10 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
       $mime_type = $image_info['mime'];
 
-      // $contents = file_get_contents();
       $student_id = $_GET['student_id'];
       $academic_year_id = $_GET['academic_year_id'];
       $year_level_id = $_GET['year_level_id'];
-      $storage_dir = "/storage";
+      $storage_dir = "/storage/payment-receipts";
 
       $payment_receipt_filename = 'student' . '_' . $student_id . '-' . $year_level_id . '-' . $academic_year_id . '.jpg';
       // The path from the root directory 

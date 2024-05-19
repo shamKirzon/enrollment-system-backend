@@ -1,5 +1,6 @@
 <?php
 require_once "../db.php";
+require_once "../file-manager.php";
 
 $pdo = getConnection();
 
@@ -29,8 +30,14 @@ switch ($_SERVER['REQUEST_METHOD']) {
       exit;
     }
 
+    $server_url = get_server_url();
+
     $sql = "
-      SELECT * FROM transactions
+      SELECT 
+        id, amount, 
+        CONCAT('$server_url', payment_receipt_url) AS payment_receipt_url,
+        created_at
+      FROM transactions
     ";
 
     $sql .= " LIMIT " . $limit;

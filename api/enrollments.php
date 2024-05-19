@@ -54,7 +54,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
         throw new Exception("No enrollments found.", 400);
       }
 
-      $root_dir = get_root_dir();
+      $server_url = get_server_url();
 
       $sql = "
         SELECT e.id, e.enrolled_at, e.section, e.tuition_plan, e.status, e.student_id, e.academic_year_id, e.year_level_id,
@@ -62,7 +62,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
           ay.start_at AS ay_start_at, 
           ay.end_at AS ay_end_at, 
           yl.name AS level,
-          CONCAT('$root_dir', t.payment_receipt_url) AS payment_receipt_url,
+          CONCAT('$server_url', t.payment_receipt_url) AS payment_receipt_url,
           CASE
             WHEN EXISTS (
               SELECT 1
@@ -125,7 +125,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
         'data' => [
           'enrollments' => $enrollments,
           'count' => $count,
-          'foo' => get_root_dir()
         ],
       ]);
     } catch (\Throwable $th) {
