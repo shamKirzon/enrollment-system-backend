@@ -20,22 +20,26 @@ VALUES
 
 CREATE TABLE sections (
   id VARCHAR(100) PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-)
+  name VARCHAR(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Only for SHS
 CREATE TABLE strands (
   id VARCHAR(100) PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-)
+  name VARCHAR(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE section_levels (
   id VARCHAR(255) PRIMARY KEY,
   section_id VARCHAR(100) NOT NULL,
   year_level_id VARCHAR(255) NOT NULL,
   -- Strands only apply for SHS
-  strand_id VARCHAR(100) 
-)
+  strand_id VARCHAR(100),
+
+  FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE,
+  FOREIGN KEY (year_level_id) REFERENCES year_levels(id) ON DELETE CASCADE,
+  FOREIGN KEY (strand_id) REFERENCES strands(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Transactions
 
@@ -73,10 +77,10 @@ VALUES ('Agatha','a','a3d8d576-1019-11ef-bee1-00e18ce201d5','5',1,'g12')
 
 CREATE TABLE tuition_plans (
   id VARCHAR(20) PRIMARY KEY,
-  name VARCHAR(50) NOT NULL, -- Not sure about this column
+  name VARCHAR(50) NOT NULL UNIQUE, -- Not sure about this column
   description TEXT NOT NULL,
   amount DECIMAL(10, 2) UNSIGNED NOT NULL DEFAULT 0.0
-)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- The amount of tuition per year?
 CREATE TABLE tuition_plan_levels (
@@ -86,7 +90,7 @@ CREATE TABLE tuition_plan_levels (
 
   FOREIGN KEY (tuition_plan_id) REFERENCES tuition_plans(id) ON DELETE CASCADE,
   FOREIGN KEY (year_level_id) REFERENCES year_levels(id) ON DELETE CASCADE
-)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE tuitions (
   id VARCHAR(20) PRIMARY KEY,
