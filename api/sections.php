@@ -32,25 +32,19 @@ switch ($_SERVER['REQUEST_METHOD']) {
         throw new Exception("Failed to create section.", 500);
       }
 
-      $section_level_id = $section_id . "-" . $year_level_id;
-
-      if($strand_id) {
-        $section_level_id .= "-" . $strand_id;
-      }
-
       $stmt = $pdo->prepare(
         "
         INSERT INTO section_levels (id, section_id, year_level_id, strand_id)
-        VALUES (?, ?, ?, ?)
+        VALUES (uuid(), ?, ?, ?)
         "
       );
-      $exec = $stmt->execute([$section_level_id, $section_id, $year_level_id, $strand_id]);
+      $exec = $stmt->execute([$section_id, $year_level_id, $strand_id]);
 
       if(!$exec){
         throw new Exception("Failed to create section level.", 500);
       }
 
-      $commit = $pdo->commit();
+      $pdo->commit();
 
       http_response_code(201); 
       echo json_encode(['message' => "Successfully created section."]);

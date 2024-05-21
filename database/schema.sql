@@ -19,22 +19,22 @@ VALUES
     ('g12', 'Grade 12');
 
 CREATE TABLE sections (
-  id VARCHAR(100) PRIMARY KEY,
+  id VARCHAR(50) PRIMARY KEY,
   name VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Only for SHS
 CREATE TABLE strands (
-  id VARCHAR(100) PRIMARY KEY,
+  id VARCHAR(50) PRIMARY KEY,
   name VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE section_levels (
-  id VARCHAR(255) PRIMARY KEY,
+  id CHAR(36) PRIMARY KEY,
   section_id VARCHAR(100) NOT NULL,
   year_level_id VARCHAR(255) NOT NULL,
   -- Strands only apply for SHS
-  strand_id VARCHAR(100),
+  strand_id VARCHAR(50),
 
   FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE,
   FOREIGN KEY (year_level_id) REFERENCES year_levels(id) ON DELETE CASCADE,
@@ -56,7 +56,6 @@ CREATE TABLE enrollments (
   section VARCHAR(255) DEFAULT NULL,
   tuition_plan enum('a','b','c','d') NOT NULL,
   status enum('pending','done') NOT NULL DEFAULT 'pending',
-  -- `payment_receipt_url` varchar(255) NOT NULL,
   student_id INT UNSIGNED NOT NULL,
   academic_year_id INT UNSIGNED NOT NULL,
   year_level_id VARCHAR(255) NOT NULL,
@@ -78,13 +77,14 @@ VALUES ('Agatha','a','a3d8d576-1019-11ef-bee1-00e18ce201d5','5',1,'g12')
 CREATE TABLE tuition_plans (
   id VARCHAR(20) PRIMARY KEY,
   name VARCHAR(50) NOT NULL UNIQUE, -- Not sure about this column
-  description TEXT NOT NULL,
-  amount DECIMAL(10, 2) UNSIGNED NOT NULL DEFAULT 0.0
+  -- description TEXT NOT NULL, -- Not sure about this either
+  down_payment_amount DECIMAL(10, 2) UNSIGNED NOT NULL DEFAULT 0.0,
+  monthly_payment_amount DECIMAL(10, 2) UNSIGNED NOT NULL DEFAULT 0.0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- The amount of tuition per year?
 CREATE TABLE tuition_plan_levels (
-  id VARCHAR(50) PRIMARY KEY,
+  id CHAR(36) PRIMARY KEY,
   tuition_plan_id VARCHAR(20) NOT NULL,
   year_level_id VARCHAR(255) NOT NULL,
 
@@ -95,23 +95,23 @@ CREATE TABLE tuition_plan_levels (
 CREATE TABLE tuitions (
   id VARCHAR(20) PRIMARY KEY,
   amount DECIMAL(10, 2) UNSIGNED NOT NULL DEFAULT 0.0,
-  year_level_id VARCHAR(255) NOT NULL,
-)
+  year_level_id VARCHAR(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --- Subjects
 
 CREATE TABLE subjects (
   id VARCHAR(50) PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-)
+  name VARCHAR(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE subject_levels (
-  id VARCHAR(50) PRIMARY KEY,
+  id CHAR(36) PRIMARY KEY,
   subject_id VARCHAR(50) NOT NULL,
   year_level_id VARCHAR(255) NOT NULL,
-  strand_id VARCHAR(255),
+  strand_id VARCHAR(100),
 
   FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
   FOREIGN KEY (year_level_id) REFERENCES year_levels(id) ON DELETE CASCADE,
-  FOREIGN KEY (strand_id) REFERENCES year_levels(strand) ON DELETE CASCADE
-)
+  FOREIGN KEY (strand_id) REFERENCES strands(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
