@@ -106,12 +106,19 @@ CREATE TABLE subjects (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE subject_levels (
-  id CHAR(36) PRIMARY KEY,
+  id VARCHAR(50) PRIMARY KEY,
   subject_id VARCHAR(50) NOT NULL,
   year_level_id VARCHAR(255) NOT NULL,
-  strand_id VARCHAR(100),
 
   FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
-  FOREIGN KEY (year_level_id) REFERENCES year_levels(id) ON DELETE CASCADE,
+  FOREIGN KEY (year_level_id) REFERENCES year_levels(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE subject_strands (
+  id VARCHAR(50) PRIMARY KEY,
+  subject_level_id VARCHAR(50) NOT NULL,
+  strand_id VARCHAR(100) NOT NULL,
+
+  FOREIGN KEY (subject_level_id) REFERENCES subject_levels(id) ON DELETE CASCADE,
   FOREIGN KEY (strand_id) REFERENCES strands(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -34,7 +34,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
       $where_clause = "";
 
       $sql = "
-        SELECT * FROM subjects 
+        SELECT s.*,
+          (SELECT COUNT(*) FROM subject_levels WHERE subject_id = s.id) AS year_level_count
+        FROM subjects s;
       ";
 
       $stmt = $pdo->prepare($sql);
@@ -73,16 +75,19 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
       // $pdo->beginTransaction(); 
 
-      $stmt = $pdo->prepare(
-        "
-        INSERT INTO subjects (id, name)
-        VALUES (?, ?)
-        "
-      );
-      $exec = $stmt->execute([$subject_id, $subject_name]);
+      try {
+        $stmt = $pdo->prepare(
+          "
+          INSERT INTO subjects (id, name)
+          VALUES (?, ?)
+          "
+          );
 
-      if(!$exec){
-        throw new Exception("Failed to create subject.", 500);
+        $stmt->execute([$subject_id, $subject_name]);
+      } catch (PDOException $th) {
+        http_response_code(409);
+        echo json_encode(['message' => "Subject $subject_id already exists."]);
+        break;
       }
 
       // if($year_level_id !== null) {

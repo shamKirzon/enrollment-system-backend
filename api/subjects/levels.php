@@ -16,7 +16,11 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
       $count_sql = "
         SELECT COUNT(*) AS count
-        FROM subject_levels
+        FROM subject_levels subl
+        JOIN subjects sub ON sub.id = subl.subject_id
+        JOIN year_levels yl ON yl.id = subl.year_level_id
+        JOIN subject_strands subjstr ON subjstr.subject_level_id = subl.id
+        JOIN strands str ON str.id = subjstr.strand_id
       ";
 
       $count_stmt = $pdo->prepare($count_sql);
@@ -33,14 +37,17 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
       $sql = "
         SELECT 
-          subl.id, subl.subject_id, subl.year_level_id, subl.strand_id,
+          subjstr.id AS subject_strand_id,
+          subl.id AS subject_level_id, subl.subject_id, subl.year_level_id,
           sub.name AS subject_name,
           yl.name AS year_level_name,
-          st.name AS strand_name
+          str.id AS strand_id,
+          str.name AS strand_name
         FROM subject_levels subl
         JOIN subjects sub ON sub.id = subl.subject_id
         JOIN year_levels yl ON yl.id = subl.year_level_id
-        LEFT JOIN strands st ON st.id = subl.strand_id
+        JOIN subject_strands subjstr ON subjstr.subject_level_id = subl.id
+        JOIN strands str ON str.id = subjstr.strand_id
       ";
 
       $stmt = $pdo->prepare($sql);
@@ -75,19 +82,50 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
       $subject_id = $json_data['subject_id'];
       $year_level_id = $json_data['year_level_id'];
-      $strand_id = $json_data['strand_id'];
+      // $strand_id = $json_data['strand_id'];
+      $strand_ids = $json_data['strand_ids'];
 
-      $stmt = $pdo->prepare(
-        "
-        INSERT INTO subject_levels (id, subject_id, year_level_id, strand_id)
-        VALUES (uuid(), ?, ?, ?)
-        "
-      );
-      $exec = $stmt->execute([$subject_id, $year_level_id, $strand_id]);
+      $pdo->beginTransaction();
 
-      if(!$exec){
-        throw new Exception("Failed to create subject level.", 500);
+      $subject_level_id = $subject_id . "-" . $year_level_id;
+
+      try {
+        $stmt = $pdo->prepare(
+          "
+          INSERT INTO subject_levels (id, subject_id, year_level_id)
+          VALUES (?, ?, ?)
+          "
+        );
+        $exec = $stmt->execute([$subject_level_id, $subject_id, $year_level_id]);
+      } catch (\PDOException $th) {
+        http_response_code(409);
+        // echo json_encode(['message' => "Subject $subject_level_id already exists."]);
+        // break;
       }
+
+
+      if(!empty($strand_ids)) {
+        // Insert all strands in `subject_strands` with the `id` of the newly inserted row in `subject_levels`
+        foreach ($strand_ids as $strand_id) {
+          $subject_strand_id = $subject_level_id . "-" . $strand_id;
+
+          try {
+            $stmt = $pdo->prepare(
+              "
+              INSERT INTO subject_strands (id, subject_level_id, strand_id)
+              VALUES (?, ?, ?)
+              "
+            );
+            $stmt->execute([$subject_strand_id, $subject_level_id, $strand_id]);
+          } catch (PDOException $th) {
+            http_response_code(409);
+            // echo json_encode(['message' => "Subject $subject_strand_id already exists."]);
+            // break;
+          }
+        }
+      }
+
+      $pdo->commit();
 
       http_response_code(201); 
       echo json_encode(['message' => "Successfully created subject level."]);
