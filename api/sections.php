@@ -14,37 +14,38 @@ switch ($_SERVER['REQUEST_METHOD']) {
       $json_data = json_decode(file_get_contents('php://input'), true);
 
       $section_name = $json_data['name'];
-      $year_level_id = $json_data['year_level_id'];
-      $strand_id = $json_data['strand_id'];
       $section_id = str_replace(" ", "-", strtolower($section_name));
 
-      $pdo->beginTransaction(); 
+      // $pdo->beginTransaction(); 
 
-      $stmt = $pdo->prepare(
-        "
-        INSERT INTO sections (id, name)
-        VALUES (?, ?)
-        "
-      );
-      $exec = $stmt->execute([$section_id, $section_name]);
-
-      if(!$exec){
-        throw new Exception("Failed to create section.", 500);
+      try {
+        $stmt = $pdo->prepare(
+          "
+          INSERT INTO sections (id, name)
+          VALUES (?, ?)
+          "
+        );
+        $exec = $stmt->execute([$section_id, $section_name]);
+      } catch (\Throwable $th) {
+        http_response_code(409);
+        echo json_encode(['message' => "Check if section $section_id already exists."]);
+        break;
       }
 
-      $stmt = $pdo->prepare(
-        "
-        INSERT INTO section_levels (id, section_id, year_level_id, strand_id)
-        VALUES (uuid(), ?, ?, ?)
-        "
-      );
-      $exec = $stmt->execute([$section_id, $year_level_id, $strand_id]);
 
-      if(!$exec){
-        throw new Exception("Failed to create section level.", 500);
-      }
+      // $stmt = $pdo->prepare(
+      //   "
+      //   INSERT INTO section_levels (id, section_id, year_level_id, strand_id)
+      //   VALUES (uuid(), ?, ?, ?)
+      //   "
+      // );
+      // $exec = $stmt->execute([$section_id, $year_level_id, $strand_id]);
+      //
+      // if(!$exec){
+      //   throw new Exception("Failed to create section level.", 500);
+      // }
 
-      $pdo->commit();
+      // $pdo->commit();
 
       http_response_code(201); 
       echo json_encode(['message' => "Successfully created section."]);

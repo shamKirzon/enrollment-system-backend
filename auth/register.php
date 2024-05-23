@@ -21,29 +21,27 @@ $contact_number = $json_data['contact_number'];
 $password = $json_data['password'];
 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-$stmt = $pdo->prepare(
-  "
-  INSERT INTO users (first_name, middle_name, last_name, email, contact_number, password) 
-  VALUES (:first_name, :middle_name, :last_name, :email, :contact_number, :password)
-  "
-);
+try {
+  $stmt = $pdo->prepare(
+    "
+    INSERT INTO users (id, first_name, middle_name, last_name, email, contact_number, password) 
+    VALUES (uuid(), :first_name, :middle_name, :last_name, :email, :contact_number, :password)
+    "
+  );
 
-$user_data = [
-  'first_name' => $first_name,
-  'middle_name' => $middle_name,
-  'last_name' => $last_name,
-  'email' => $email,
-  'contact_number' => $contact_number,
-  'password' => $hashed_password
-];
+  $user_data = [
+    'first_name' => $first_name,
+    'middle_name' => $middle_name,
+    'last_name' => $last_name,
+    'email' => $email,
+    'contact_number' => $contact_number,
+    'password' => $hashed_password
+  ];
 
-$exec = $stmt->execute($user_data);
-
-
-if (!$exec) {
-  http_response_code(500);
+  $stmt->execute($user_data);
+} catch (\PDOException $th) {
+  http_response_code(409);
   echo json_encode(['message' => "Failed to register user."]);
-  exit;
 }
 
 http_response_code(201);
