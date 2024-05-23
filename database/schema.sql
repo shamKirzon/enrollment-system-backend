@@ -1,5 +1,5 @@
 -- Users (Authentication)
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   id CHAR(36) PRIMARY KEY, -- uuid()
   created_at timestamp NOT NULL DEFAULT current_timestamp(),
 
@@ -9,17 +9,21 @@ CREATE TABLE users (
   suffix_name varchar(255), -- Jr., III., etc.
   email varchar(255) NOT NULL,
   contact_number varchar(20) NOT NULL,
-  role ENUM('student', 'teacher', 'parent', 'admin') NOT NULL DEFAULT 'student',
-  avatar_url TEXT,
+  role ENUM('student', 'parent', 'teacher', 'admin') NOT NULL DEFAULT 'student',
+  avatar_url TEXT, -- 1x1 picture / ID picture
 
-  password TEXT NOT NULL
+  password TEXT NOT NULL -- Hashed password
 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
---- Parent Account
+
+
+
+
+-- Parent Account
 -- Will be used for parents who want to create an account and view their children's enrollment status, grades, etc.
-CREATE TABLE parent_student_links (
+CREATE TABLE IF NOT EXISTS parent_student_links (
   id CHAR(36) PRIMARY KEY, -- uuid()
 
   parent_id CHAR(36) NOT NULL,
@@ -30,20 +34,20 @@ CREATE TABLE parent_student_links (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
---- Student's Personal Information
+-- Student's Personal Information
 
-CREATE TABLE address (
-  id INT PRIMARY KEY AUTO_INCREMENT, -- CHANGE THIS  
+CREATE TABLE IF NOT EXISTS address (
+  id INT PRIMARY KEY AUTO_INCREMENT, -- Auto increment for simplicity
   country VARCHAR(255) NOT NULL,
   region VARCHAR(255) NOT NULL,
   province VARCHAR(255) NOT NULL,
   city VARCHAR(255) NOT NULL,
   barangay VARCHAR(255) NOT NULL,
   street TEXT
-)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Student's Family Members
-CREATE TABLE student_family_members (
+CREATE TABLE IF NOT EXISTS student_family_members (
   id CHAR(36) PRIMARY KEY, -- uuid()
   first_name varchar(255) NOT NULL,
   middle_name varchar(255),
@@ -60,8 +64,8 @@ CREATE TABLE student_family_members (
   FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- For students only?
-CREATE TABLE student_profiles (
+-- Information of the student themselves
+CREATE TABLE IF NOT EXISTS student_profiles (
   id CHAR(36) PRIMARY KEY, -- uuid()
 
   lrn VARCHAR(20) NOT NULL UNIQUE, -- Learning Reference Number (LRN)
@@ -71,9 +75,14 @@ CREATE TABLE student_profiles (
   citizenship VARCHAR(100) NOT NULL,
   religion VARCHAR(100) NOT NULL,
 
-  -- Preferred details
+  -- Preferred contact details
   parent_contact_number VARCHAR(20) NOT NULL,
   landline VARCHAR(20) NOT NULL,
+
+  -- Documents
+  -- Put them in here instead on `enrollments` since there is no need to reupload the same certificate
+  birth_certificate_url TEXT NOT NULL,
+  baptismal_certificate_url TEXT NOT NULL,
 
   address_id INT NOT NULL,
   student_id CHAR(36) NOT NULL,
@@ -86,9 +95,17 @@ CREATE TABLE student_profiles (
 
 
 
---- Enrollment stuff
+-- Enrollment stuff
 
-CREATE TABLE year_levels (
+CREATE TABLE IF NOT EXISTS academic_years (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  start_at DATE NOT NULL,
+  end_at DATE NOT NULL,
+  status ENUM('upcoming', 'open', 'ongoing', 'finished') NOT NULL DEFAULT 'upcoming'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+CREATE TABLE IF NOT EXISTS year_levels (
   id VARCHAR(50) PRIMARY KEY,
   name VARCHAR(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -114,19 +131,19 @@ VALUES
 
 
 
-CREATE TABLE sections (
+CREATE TABLE IF NOT EXISTS sections (
   id VARCHAR(50) PRIMARY KEY,
   name VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Only for SHS
-CREATE TABLE strands (
+CREATE TABLE IF NOT EXISTS strands (
   id VARCHAR(100) PRIMARY KEY,
   name VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Sections per grade level
-CREATE TABLE section_levels (
+CREATE TABLE IF NOT EXISTS section_levels (
   id VARCHAR(100) PRIMARY KEY,
 
   section_id VARCHAR(50) NOT NULL,
@@ -137,7 +154,7 @@ CREATE TABLE section_levels (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- SHS Sections and their strands
-CREATE TABLE section_strands (
+CREATE TABLE IF NOT EXISTS section_strands (
   id VARCHAR(100) PRIMARY KEY,
 
   section_level_id VARCHAR(100) NOT NULL,
@@ -151,17 +168,17 @@ CREATE TABLE section_strands (
 
 
 
---- Payments/Transactions
+-- Payments/Transactions
 
 -- The school's payment accounts
-CREATE TABLE payment_accounts (
+CREATE TABLE IF NOT EXISTS payment_accounts (
   id VARCHAR(255) PRIMARY KEY, -- account_name + '-' + account_number
   account_name VARCHAR(100) NOT NULL,
   account_number VARCHAR(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- This is the school's payment modes
-CREATE TABLE payment_modes (
+CREATE TABLE IF NOT EXISTS payment_modes (
   id VARCHAR(50) PRIMARY KEY,
   channel VARCHAR(100) NOT NULL, -- BPI, GCash, onsite (f2f), etc.
 
@@ -173,7 +190,7 @@ CREATE TABLE payment_modes (
 
 -- Transactions
 -- This is submitted by the student or parent after they finish paying
-CREATE TABLE transactions (
+CREATE TABLE IF NOT EXISTS transactions (
   id CHAR(36) PRIMARY KEY, -- uuid()
   created_at TIMESTAMP NOT NULL DEFAULT current_timestamp(),
 
@@ -193,16 +210,16 @@ CREATE TABLE transactions (
 
 -- Tuition Plans
 -- This only applies if the payment is installment based
-CREATE TABLE tuition_plans (
+CREATE TABLE IF NOT EXISTS tuition_plans (
   id VARCHAR(20) PRIMARY KEY, 
-  name VARCHAR(50) NOT NULL  -- A-1, ..., B-1, ..., Cash
+  name VARCHAR(50) NOT NULL  -- A-1, ..., B-1, ...
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- The amount of tuition per year
-CREATE TABLE tuition_plan_levels (
+-- The amount of installment payment of each tuition plan per year level
+CREATE TABLE IF NOT EXISTS tuition_plan_levels (
   id CHAR(36) PRIMARY KEY,
-  down_payment_amount DECIMAL(10, 2) UNSIGNED NOT NULL DEFAULT 0.0,
-  monthly_payment_amount DECIMAL(10, 2) UNSIGNED NOT NULL DEFAULT 0.0,
+  down_payment_amount DECIMAL(10, 2) UNSIGNED NOT NULL,
+  monthly_payment_amount DECIMAL(10, 2) UNSIGNED NOT NULL,
 
   tuition_plan_id VARCHAR(20) NOT NULL,
   year_level_id VARCHAR(50) NOT NULL,
@@ -215,21 +232,22 @@ CREATE TABLE tuition_plan_levels (
 
 
 -- Enrollment Fees
-
-CREATE TABLE enrollment_fees (
-  id VARCHAR(255) PRIMARY KEY, 
+-- e.g. tuition fee, computer fee, energy fee, etc.
+CREATE TABLE IF NOT EXISTS enrollment_fees (
+  id VARCHAR(255) PRIMARY KEY, -- `name` in lower case
   name VARCHAR(255) NOT NULL
-  -- amount DECIMAL(10, 2) UNSIGNED NOT NULL,
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Amount of each enrollment fee per level
--- The sum of all enrollment fee per level will be the total tuition
-CREATE TABLE enrollment_fee_levels (
-  id VARCHAR(255) PRIMARY KEY,
+-- The sum of all enrollment fees will be the total enrollment fee for that year level
+CREATE TABLE IF NOT EXISTS enrollment_fee_levels (
+  id VARCHAR(255) PRIMARY KEY, -- `enrollment_fee_id` + `year_level_id`
   amount DECIMAL(10, 2) UNSIGNED NOT NULL,
 
+  enrollment_fee_id VARCHAR(255) NOT NULL,
   year_level_id VARCHAR(50) NOT NULL,
 
+  FOREIGN KEY (enrollment_fee_id) REFERENCES enrollment_fees(id) ON DELETE CASCADE,
   FOREIGN KEY (year_level_id) REFERENCES year_levels(id) ON DELETE CASCADE
 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -237,40 +255,45 @@ CREATE TABLE enrollment_fee_levels (
 
 
 -- Enrollment Discounts
-
-CREATE TABLE enrollment_discounts (
-  id VARCHAR(255) PRIMARY KEY,
+-- SUM(amount FROM enrollment_fee_levels) * (1 - (percentage FROM enrollment_discounts)) = discounted enrollment fee
+CREATE TABLE IF NOT EXISTS enrollment_discounts (
+  id VARCHAR(255) PRIMARY KEY, -- `name` in lower case
   name VARCHAR(255) NOT NULL,
-  percentage DECIMAL(10, 2) UNSIGNED NOT NULL
+  percentage DECIMAL(6, 2) UNSIGNED NOT NULL
 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 
 
-CREATE TABLE academic_years (
-  id INT AUTO_INCREMENT,
-  start_at DATE NOT NULL,
-  end_at DATE NOT NULL,
-  status ENUM('upcoming', 'open', 'ongoing', 'finished') NOT NULL DEFAULT 'upcoming'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- Enrollments of students
 
-
-CREATE TABLE enrollments (
+CREATE TABLE IF NOT EXISTS enrollments (
   id CHAR(36) PRIMARY KEY, -- uuid()
   enrolled_at TIMESTAMP NOT NULL DEFAULT current_timestamp(),
-  status enum('pending','done') NOT NULL DEFAULT 'pending',
+  status enum('pending', 'done') NOT NULL DEFAULT 'pending',
 
   student_id CHAR(36) NOT NULL,
   academic_year_id INT NOT NULL,
   year_level_id VARCHAR(50) NOT NULL,
   transaction_id CHAR(36) NOT NULL UNIQUE,
-  tuition_plan_id VARCHAR(20), -- NULL if transaction payment_method is 'cash'
 
   FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (academic_year_id) REFERENCES academic_years(id) ON DELETE CASCADE,
   FOREIGN KEY (year_level_id) REFERENCES year_levels(id) ON DELETE CASCADE,
-  FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE CASCADE,
+  FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE CASCADE
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- Tuition plans of those who enrolled via installment
+CREATE TABLE IF NOT EXISTS enrolled_tuition_plans (
+  id CHAR(36) PRIMARY KEY, -- uuid()
+
+  enrollment_id CHAR(36) NOT NULL,
+  tuition_plan_id VARCHAR(20) NOT NULL,
+
+  FOREIGN KEY (enrollment_id) REFERENCES enrollments(id) ON DELETE CASCADE,
   FOREIGN KEY (tuition_plan_id) REFERENCES tuition_plans(id) ON DELETE CASCADE
 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -279,15 +302,29 @@ CREATE TABLE enrollments (
 
 
 
---- Subjects
+-- Only for transferees or returnees / new students
+-- A student is considered "new" if they did not enroll in the previous school year
+-- regardless if they've enrolled on the school in the past (before the previous school year)
+CREATE TABLE IF NOT EXISTS report_cards (
+  id INT PRIMARY KEY AUTO_INCREMENT, -- Auto increment for simplicity
+  report_card_url TEXT NOT NULL,
 
-CREATE TABLE subjects (
+  enrollment_id CHAR(36) NOT NULL,
+
+  FOREIGN KEY(enrollment_id) REFERENCES enrollments(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- Subjects
+
+-- All subjects
+CREATE TABLE IF NOT EXISTS subjects (
   id VARCHAR(50) PRIMARY KEY,
   name VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Subjects per grade level
-CREATE TABLE subject_levels (
+CREATE TABLE IF NOT EXISTS subject_levels (
   id VARCHAR(50) PRIMARY KEY,
   subject_id VARCHAR(50) NOT NULL,
   year_level_id VARCHAR(255) NOT NULL,
@@ -296,8 +333,8 @@ CREATE TABLE subject_levels (
   FOREIGN KEY (year_level_id) REFERENCES year_levels(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- SHS Subjects and their strands
-CREATE TABLE subject_strands (
+-- SHS subjects and their strands
+CREATE TABLE IF NOT EXISTS subject_strands (
   id VARCHAR(50) PRIMARY KEY,
   subject_level_id VARCHAR(50) NOT NULL,
   strand_id VARCHAR(100) NOT NULL,
@@ -309,8 +346,29 @@ CREATE TABLE subject_strands (
 
 
 
+-- Grades
+-- Use to generate report card
+CREATE TABLE IF NOT EXISTS student_grades (
+  id CHAR(36) PRIMARY KEY,
+  grade DECIMAL(6, 3) UNSIGNED NOT NULL, -- Only up to 100.000
 
---- LEAVE THIS HERE
+  -- First to Fourth grading period, may also be translated to periods of each SHS semester
+  -- e.g. 1st Sem - 1st Period = '1', 2nd Sem - 2nd Period = '4'
+  period ENUM('1', '2', '3', '4') NOT NULL, 
+
+  -- Use `subject_level` to get both the subject and year level
+  -- Can also be used to get the subject strand if needed
+  subject_level_id VARCHAR(50) NOT NULL,
+  student_id CHAR(36) NOT NULL,
+
+  FOREIGN KEY (subject_level_id) REFERENCES subject_levels(id) ON DELETE CASCADE,
+  FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+
+
+-- LEAVE THIS HERE
 
 -- SELECT
 --    sub.id AS subject_id,
