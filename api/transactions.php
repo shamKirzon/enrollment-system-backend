@@ -25,7 +25,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     if (!$count) {
       $pdo->rollBack(); 
-      http_response_code(400);
+      http_response_code(404);
       echo json_encode(['message' => "No transactions found."]);
       exit;
     }
@@ -34,21 +34,26 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     $sql = "
       SELECT 
-        id, amount, 
-        CONCAT('$server_url', payment_receipt_url) AS payment_receipt_url,
-        created_at
-      FROM transactions
+        t.id AS transaction_id, 
+        t.created_at, 
+        t.transaction_number, 
+        t.payment_amount, 
+        t.payment_method,
+        CONCAT('$server_url', t.payment_receipt_url) AS payment_receipt_url, 
+        t.payment_mode_id,
+        pm.payment_channel
+      FROM transactions t
+      JOIN payment_modes pm ON pm.id = t.payment_mode_id
     ";
 
-    $sql .= " LIMIT " . $limit;
-    $sql .= " OFFSET " . $offset;
+    $sql .= " LIMIT " . $limit . " OFFSET " . $offset;
 
     $transactions = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 
     if (!$transactions) {
       $pdo->rollBack(); 
       http_response_code(400);
-      echo json_encode(['message' => "Failed to fetch transactions."]);
+      echo json_encode(['message' => "Failed to fetch payment transactions."]);
       exit;
     }
 
@@ -57,7 +62,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
     http_response_code(200);
 
     echo json_encode([
-      'message' => "Successfully fetched transactions.",
+      'message' => "Successfully fetched payment transactions.",
       'data' => [
         'transactions' => $transactions,
         'count' => $count
@@ -68,26 +73,38 @@ switch ($_SERVER['REQUEST_METHOD']) {
   case 'POST':
     $json_data = json_decode(file_get_contents('php://input'), true);
 
-    $amount = $json_data['amount'];
+    $transaction_number = $json_data['transaction_number'];
+    $payment_amount = $json_data['payment_amount'];
+    $payment_method = $json_data['payment_method'];
     $payment_receipt_url = $json_data['payment_receipt_url'];
+    $payment_mode_id = $json_data['payment_mode_id'];
+
+    $pdo->beginTransaction();
+
+    $stmt = $pdo->query("SELECT uuid()");
+    $transaction_id = $stmt->fetchColumn();
 
     $sql = "
-      INSERT INTO transactions (id, amount, payment_receipt_url)
-      VALUES (uuid(), ?, ?)
-      ";
+      INSERT INTO transactions (id, transaction_number, payment_amount, payment_method, payment_receipt_url, payment_mode_id)
+      VALUES (?, ?, ?, ?, ?, ?)
+    ";
 
-    $stmt = $pdo->prepare($sql);
+    try {
+      $stmt = $pdo->prepare($sql);
+      $stmt->execute([$transaction_id, $transaction_number, $payment_amount, $payment_method, $payment_receipt_url, $payment_mode_id]);
 
-    $exec = $stmt->execute([$amount, $payment_receipt_url]);
-
-    if(!$exec){
-      http_response_code(500);
-      echo json_encode(['message' => "Failed to insert transaction."]);
-      exit;
+      $pdo->commit();
+      http_response_code(201); 
+      echo json_encode([
+        'message' => "Successfully created payment transaction.", 
+        "data" => [
+          "transaction_id" => $transaction_id
+        ]
+      ]);
+    } catch (\Throwable $th) {
+      http_response_code($th->getCode());
+      echo json_encode(['message' => "Failed to create payment transaction."]);
     }
-
-    http_response_code(201); 
-    echo json_encode(['message' => "Successfully inserted transaction."]);
 
     break;
   case 'PATCH':

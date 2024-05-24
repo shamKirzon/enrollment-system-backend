@@ -134,6 +134,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
     break;
 
   case 'POST':
+    // NOTE: This is NOT used right now
     $json_data = json_decode(file_get_contents('php://input'), true);
 
     $tuition_plan = $json_data['tuition_plan'];

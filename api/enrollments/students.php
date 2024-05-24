@@ -37,12 +37,21 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
       $sql = "
         SELECT 
-          ay.id AS academic_year_id, ay.start_at, ay.end_at, ay.status AS academic_year_status, 
-          e.tuition_plan, e.status AS enrollment_status, e.section, e.enrolled_at,
-          yl.name AS year_level
+          ay.id AS academic_year_id, 
+          ay.start_at AS academic_year_start_at, 
+          ay.end_at AS academic_year_end_at, 
+          ay.status AS academic_year_status, 
+          e.id AS enrollment_id, 
+          e.enrolled_at, 
+          e.status AS enrollment_status, 
+          yl.name AS year_level,
+          s.name AS section_name
         FROM academic_years ay
         LEFT JOIN enrollments e ON ay.id = e.academic_year_id 
         LEFT JOIN year_levels yl ON yl.id = e.year_level_id
+        LEFT JOIN section_assignments sa ON sa.enrollment_id = e.id
+        LEFT JOIN section_levels sl ON sl.id = sa.section_level_id
+        LEFT JOIN sections s ON s.id = sl.section_id
         WHERE (ay.status = 'finished' AND e.status = 'done' AND e.student_id = ?) OR ay.status = 'open'
         ORDER BY ay.start_at DESC
       ";
@@ -79,49 +88,26 @@ switch ($_SERVER['REQUEST_METHOD']) {
     break;
 
   case 'POST':
+    $json_data = json_decode(file_get_contents('php://input'), true);
+
+    $student_id = $json_data['student_id'];
+    $academic_year_id = $json_data['academic_year_id'];
+    $year_level_id = $json_data['year_level_id'];
+    $transaction_id = $json_data['transaction_id'];
+
+    $sql = "
+      INSERT INTO enrollments (id, student_id, academic_year_id, year_level_id, transaction_id) 
+      VALUES (uuid(), ?, ?, ?, ?)
+    ";
 
     try {
-      $json_data = json_decode(file_get_contents('php://input'), true);
+      $stmt = $pdo->prepare($sql);
 
-      $tuition_plan = $json_data['tuition_plan']; // tuition_plan_id
-      $academic_year_id = $json_data['academic_year_id'];
-      $year_level_id = $json_data['year_level_id'];
-      $student_id = $json_data['student_id'];
-      $amount = $json_data['amount'];
-      $payment_receipt_url = $json_data['payment_receipt_url'];
-
-      $pdo->beginTransaction(); 
-
-      $uuid_sql = "
-      SELECT uuid()
-      ";
-
-      $stmt = $pdo->prepare($uuid_sql);
-      $stmt->execute();
-      $transaction_id = $stmt->fetchColumn();
-
-      $transaction_sql = "
-      INSERT INTO transactions (id, amount, payment_receipt_url)
-      VALUES (?, ?, ?)
-      ";
-
-      $stmt = $pdo->prepare($transaction_sql);
-      $stmt->execute([$transaction_id, $amount, $payment_receipt_url]);
-
-      $enrollment_sql = "
-      INSERT INTO enrollments (tuition_plan, student_id, academic_year_id, year_level_id, transaction_id) 
-      VALUES (?, ?, ?, ?, ?)
-      ";
-
-      $stmt = $pdo->prepare($enrollment_sql);
-      $stmt->execute([$tuition_plan, $student_id, $academic_year_id, $year_level_id, $transaction_id]);
-
-      $pdo->commit(); 
+      $stmt->execute([$student_id, $academic_year_id, $year_level_id, $transaction_id]);
 
       http_response_code(201); 
       echo json_encode(['message' => "Successfully submitted enrollment."]);
     } catch (\Throwable $th) {
-      $pdo->rollBack();
       http_response_code($th->getCode());
       echo json_encode(['message' => $th->getMessage()]);
     }

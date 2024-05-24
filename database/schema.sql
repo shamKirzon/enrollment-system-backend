@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS student_profiles (
   baptismal_certificate_url TEXT NOT NULL,
 
   address_id INT NOT NULL,
-  student_id CHAR(36) NOT NULL,
+  student_id CHAR(36) NOT NULL UNIQUE,
 
   FOREIGN KEY (address_id) REFERENCES address(id) ON DELETE CASCADE,
   FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE
@@ -130,6 +130,18 @@ VALUES
 
 
 
+-- NOTE: This may or may not be a user
+-- For now, don't make it a user for simplicity
+-- The grades for the report card will be entered by the admins instead
+CREATE TABLE IF NOT EXISTS teachers (
+  id CHAR(36) PRIMARY KEY,
+  first_name varchar(255) NOT NULL,
+  middle_name varchar(255),
+  last_name varchar(255) NOT NULL,
+  suffix_name varchar(255), -- Jr., III., etc.
+  sex ENUM('male', 'female') NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 CREATE TABLE IF NOT EXISTS sections (
   id VARCHAR(50) PRIMARY KEY,
@@ -142,15 +154,20 @@ CREATE TABLE IF NOT EXISTS strands (
   name VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Sections per grade level
+-- Sections per grade level + Advisers
 CREATE TABLE IF NOT EXISTS section_levels (
   id VARCHAR(100) PRIMARY KEY,
 
   section_id VARCHAR(50) NOT NULL,
   year_level_id VARCHAR(50) NOT NULL,
 
+  -- Assigned teachers for that section
+  -- Some sections may not have advisers
+  adviser_id CHAR(36), 
+
   FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE,
-  FOREIGN KEY (year_level_id) REFERENCES year_levels(id) ON DELETE CASCADE
+  FOREIGN KEY (year_level_id) REFERENCES year_levels(id) ON DELETE CASCADE,
+  FOREIGN KEY (adviser_id) REFERENCES teachers(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- SHS Sections and their strands
@@ -165,6 +182,17 @@ CREATE TABLE IF NOT EXISTS section_strands (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
+
+-- Use to assign students to their corresponding sections per enrollment
+CREATE TABLE IF NOT EXISTS section_assignments (
+  id CHAR(36) PRIMARY KEY,
+
+  enrollment_id CHAR(36) NOT NULL,
+  section_level_id VARCHAR(100) NOT NULL,
+
+  FOREIGN KEY (enrollment_id) REFERENCES enrollments(id) ON DELETE CASCADE,
+  FOREIGN KEY (section_level_id) REFERENCES section_levels(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 
@@ -285,6 +313,17 @@ CREATE TABLE IF NOT EXISTS enrollments (
 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- All discounts for students
+CREATE TABLE IF NOT EXISTS enrollment_discount_applications (
+  id CHAR(36) PRIMARY KEY,
+
+  enrollment_id CHAR(36) NOT NULL,
+  enrollment_discount_id VARCHAR(255) NOT NULL, 
+
+  FOREIGN KEY(enrollment_id) REFERENCES enrollments(id) ON DELETE CASCADE,
+  FOREIGN KEY(enrollment_discount_id) REFERENCES enrollment_discounts(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- Tuition plans of those who enrolled via installment
 CREATE TABLE IF NOT EXISTS enrolled_tuition_plans (
@@ -341,6 +380,21 @@ CREATE TABLE IF NOT EXISTS subject_strands (
 
   FOREIGN KEY (subject_level_id) REFERENCES subject_levels(id) ON DELETE CASCADE,
   FOREIGN KEY (strand_id) REFERENCES strands(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- TODO: Which grading period the subject is on
+-- Only applies for SHS ?
+CREATE TABLE IF NOT EXISTS subject_periods (
+  id VARCHAR(255) PRIMARY KEY,
+
+  -- First to Fourth grading period, may also be translated to periods of each SHS semester
+  -- e.g. 1st Sem - 1st Period = '1', 2nd Sem - 2nd Period = '4'
+  period ENUM('1', '2', '3', '4') NOT NULL, 
+
+  subject_strand_id VARCHAR(50) NOT NULL,
+
+  FOREIGN KEY (subject_strand_id) REFERENCES subject_strands(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
