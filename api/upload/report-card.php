@@ -20,23 +20,21 @@ switch ($_SERVER['REQUEST_METHOD']) {
       $mime_type = $image_info['mime'];
 
       $student_id = $_GET['student_id'];
-      $academic_year_id = $_GET['academic_year_id'];
-      $year_level_id = $_GET['year_level_id'];
-      $storage_dir = "/storage/payment-receipts";
+      $storage_dir = "/storage/report-cards";
 
-      $payment_receipt_filename = 'STUDENT' . '_' . $student_id . '_' . 'PAYMENT-RECEIPT' . '.jpg';
+      $report_card_filename = 'STUDENT' . '_' . $student_id . '_' . 'REPORT-CARD' . '.jpg';
       // The path from the root directory 
-      $payment_receipt_path = get_root_dir() . $storage_dir . '/' . $payment_receipt_filename;
+      $report_card_path = get_root_dir() . $storage_dir . '/' . $report_card_filename;
 
-      if(file_put_contents($payment_receipt_path, $raw_data) === false) {
-        throw new Exception("Failed to upload payment receipt.", 500);
+      if(file_put_contents($report_card_path, $raw_data) === false) {
+        throw new Exception("Failed to upload report card.", 500);
       }
 
       // The 'URL' that doesn't contain the root directory
-      $payment_receipt_url = $storage_dir . '/' . $payment_receipt_filename;
+      $report_card_url = $storage_dir . '/' . $report_card_filename;
 
       http_response_code(201); 
-      echo json_encode(['message' => "Successfully uploaded payment receipt.", 'data' => ['payment_receipt_url' => $payment_receipt_url]]);
+      echo json_encode(['message' => "Successfully uploaded report card.", 'data' => ['report_card_url' => $report_card_url]]);
     } catch (\Throwable $th) {
       http_response_code($th->getCode());
       echo json_encode(['message' => $th->getMessage()]);

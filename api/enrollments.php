@@ -49,33 +49,50 @@ switch ($_SERVER['REQUEST_METHOD']) {
       $countStmt->execute($countParams);
       $count = $countStmt->fetchColumn();
 
-      if (!$count) {
+      if ($count === false) {
         $pdo->rollBack(); 
-        throw new Exception("No enrollments found.", 400);
+        throw new Exception("Failed to fetch enrollment count.", 400);
       }
 
       $server_url = get_server_url();
 
       $sql = "
-        SELECT e.id, e.enrolled_at, e.section, e.tuition_plan, e.status, e.student_id, e.academic_year_id, e.year_level_id,
-          u.first_name, u.middle_name, u.last_name, 
-          ay.start_at AS ay_start_at, 
-          ay.end_at AS ay_end_at, 
-          yl.name AS level,
-          CONCAT('$server_url', t.payment_receipt_url) AS payment_receipt_url,
-          CASE
-            WHEN EXISTS (
-              SELECT 1
-              FROM enrollments sub_e
-              WHERE sub_e.student_id = u.id AND sub_e.id <> e.id AND sub_e.enrolled_at < e.enrolled_at
-            ) THEN 'old'
-            ELSE 'new'
-          END AS student_status
+      SELECT 
+        e.id AS enrollment_id, 
+        e.enrolled_at, 
+        e.status, 
+        e.student_id, 
+        e.academic_year_id, 
+        e.year_level_id,
+        e.transaction_id,
+        u.first_name, 
+        u.middle_name, 
+        u.last_name, 
+        u.suffix_name, 
+        ay.start_at AS academic_year_start_at, 
+        ay.end_at AS academic_year_end_at, 
+        yl.name AS year_level_name,
+        t.payment_amount,
+        t.payment_method,
+        t.transaction_number,
+        tp.name AS tuition_plan_name,
+        CONCAT('$server_url', t.payment_receipt_url) AS payment_receipt_url,
+        CASE
+          WHEN EXISTS (
+            SELECT 1
+            FROM enrollments sub_e
+            WHERE sub_e.status = 'done' AND sub_e.student_id = u.id
+            ORDER BY sub_e.enrolled_at DESC
+          ) THEN 'old'
+          ELSE 'new'
+        END AS student_status
         FROM enrollments e
         JOIN users u ON e.student_id = u.id
         JOIN academic_years ay ON e.academic_year_id = ay.id
         JOIN year_levels yl ON e.year_level_id = yl.id
         JOIN transactions t ON e.transaction_id = t.id
+        LEFT JOIN enrolled_tuition_plans etp ON etp.enrollment_id = e.id
+        LEFT JOIN tuition_plans tp ON tp.id = etp.tuition_plan_id
       ";
 
       $conditions = array();
@@ -101,9 +118,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
       }
 
       $sql .= "
-        GROUP BY
-          e.id, e.enrolled_at, e.section, e.tuition_plan, e.status, e.transaction_id, e.student_id, e.academic_year_id, e.year_level_id,
-          ay.id, ay.start_at, ay.end_at, ay.status
         ORDER BY e.enrolled_at
       ";
       $sql .= " LIMIT " . $limit . " OFFSET " . $offset;
@@ -112,7 +126,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
       $stmt->execute($params);
       $enrollments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-      if (!$enrollments) {
+      if ($enrollments === false) {
         $pdo->rollBack(); 
         throw new Exception("Failed to fetch enrollments.", 400);
       }

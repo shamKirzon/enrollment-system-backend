@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: May 24, 2024 at 02:58 PM
+-- Generation Time: May 25, 2024 at 03:33 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -42,7 +42,8 @@ INSERT INTO `academic_years` (`id`, `start_at`, `end_at`, `status`) VALUES
 (1, '2021-05-05', '2022-05-05', 'finished'),
 (2, '2022-08-05', '2023-05-01', 'finished'),
 (3, '2023-08-05', '2024-05-01', 'finished'),
-(4, '2024-08-05', '2025-05-01', 'open');
+(4, '2024-08-05', '2025-05-01', 'open'),
+(5, '2025-08-05', '2026-05-01', 'open');
 
 -- --------------------------------------------------------
 
@@ -100,7 +101,7 @@ CREATE TABLE `enrollments` (
 --
 
 INSERT INTO `enrollments` (`id`, `enrolled_at`, `status`, `student_id`, `academic_year_id`, `year_level_id`, `transaction_id`) VALUES
-('b2f56ea0-1997-11ef-ac3d-00e18ce201d5', '2024-05-24 06:34:40', 'pending', 'edcb084a-197b-11ef-a11c-00e18ce201d5', 4, 'g11', '2326e788-1994-11ef-ac3d-00e18ce201d5');
+('8a308296-1a2f-11ef-9706-00e18ce201d5', '2024-05-25 00:41:35', 'done', 'edcb084a-197b-11ef-a11c-00e18ce201d5', 4, 'g11', '8a2fd976-1a2f-11ef-9706-00e18ce201d5');
 
 -- --------------------------------------------------------
 
@@ -256,6 +257,13 @@ CREATE TABLE `report_cards` (
   `enrollment_id` char(36) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `report_cards`
+--
+
+INSERT INTO `report_cards` (`id`, `report_card_url`, `enrollment_id`) VALUES
+(2, '/storage/report-cards/STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_REPORT-CARD.jpg', '8a308296-1a2f-11ef-9706-00e18ce201d5');
+
 -- --------------------------------------------------------
 
 --
@@ -286,13 +294,6 @@ CREATE TABLE `section_assignments` (
   `enrollment_id` char(36) NOT NULL,
   `section_level_id` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `section_assignments`
---
-
-INSERT INTO `section_assignments` (`id`, `enrollment_id`, `section_level_id`) VALUES
-('4b8079e4-19c9-11ef-b761-00e18ce201d5', 'b2f56ea0-1997-11ef-ac3d-00e18ce201d5', 'agatha-of-sicily-g11');
 
 -- --------------------------------------------------------
 
@@ -528,7 +529,7 @@ CREATE TABLE `transactions` (
 --
 
 INSERT INTO `transactions` (`id`, `created_at`, `transaction_number`, `payment_amount`, `payment_method`, `payment_receipt_url`, `payment_mode_id`) VALUES
-('2326e788-1994-11ef-ac3d-00e18ce201d5', '2024-05-24 06:09:10', '987654321', 40000.00, 'cash', 'https://kpopping.com/documents/58/1/1280/230317-NewJeans-Twitter-Update-Hanni-documents-1.jpeg?v=20204', 'bpi-pateros-catholic-school-12345679');
+('8a2fd976-1a2f-11ef-9706-00e18ce201d5', '2024-05-25 00:41:35', '1111111111', 40000.00, 'cash', '/storage/payment-receipts/STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_PAYMENT-RECEIPT.jpg', 'bpi-pateros-catholic-school-12345679');
 
 -- --------------------------------------------------------
 
@@ -856,7 +857,7 @@ ALTER TABLE `year_levels`
 -- AUTO_INCREMENT for table `academic_years`
 --
 ALTER TABLE `academic_years`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `addresses`
@@ -868,7 +869,7 @@ ALTER TABLE `addresses`
 -- AUTO_INCREMENT for table `report_cards`
 --
 ALTER TABLE `report_cards`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables

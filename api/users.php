@@ -14,28 +14,28 @@ switch ($_SERVER['REQUEST_METHOD']) {
         role,
         (SELECT COUNT(*) FROM users WHERE users.role = u.role) AS value
       FROM users u
-      GROUP BY role;
+      GROUP BY u.role;
     ";
 
     $count_stmt = $pdo->prepare($count_sql);
     $count_stmt->execute();
-    $count = $count_stmt->fetchAll(PDO::FETCH_ASSOC);
+    $role_count = $count_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    if (!$count) {
+    if ($role_count === false) {
       $pdo->rollBack(); 
       http_response_code(400);
-      echo json_encode(['message' => "No users found."]);
+      echo json_encode(['message' => "Failed to fetch user count."]);
       exit;
     }
 
     $sql = "
-      SELECT id, first_name, middle_name, last_name, email, contact_number, role, created_at, updated_at 
+      SELECT id, created_at, first_name, middle_name, last_name, suffix_name, email, contact_number, role, avatar_url
       FROM users
     ";
 
     $users = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 
-    if (!$users) {
+    if ($users === false) {
       $pdo->rollBack(); 
       http_response_code(400);
       echo json_encode(['message' => "Failed to fetch users."]);
@@ -50,7 +50,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
       'message' => "Successfully fetched academic years.",
       'data' => [
         'users' => $users,
-        'count' => $count
+        'role_count' => $role_count
       ]
     ]);
   break;

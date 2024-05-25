@@ -97,16 +97,23 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     $sql = "
       INSERT INTO enrollments (id, student_id, academic_year_id, year_level_id, transaction_id) 
-      VALUES (uuid(), ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?)
     ";
 
     try {
-      $stmt = $pdo->prepare($sql);
+      $stmt = $pdo->query("SELECT uuid()");
+      $enrollment_id = $stmt->fetchColumn();
 
-      $stmt->execute([$student_id, $academic_year_id, $year_level_id, $transaction_id]);
+      $stmt = $pdo->prepare($sql);
+      $stmt->execute([$enrollment_id, $student_id, $academic_year_id, $year_level_id, $transaction_id]);
 
       http_response_code(201); 
-      echo json_encode(['message' => "Successfully submitted enrollment."]);
+      echo json_encode([
+        'message' => "Successfully submitted enrollment.",
+        'data' => [
+          "enrollment_id" => $enrollment_id
+        ]
+      ]);
     } catch (\Throwable $th) {
       http_response_code($th->getCode());
       echo json_encode(['message' => $th->getMessage()]);
