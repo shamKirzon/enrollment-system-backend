@@ -5,6 +5,7 @@ $pdo = getConnection();
 
 header('Content-Type: application/json');
 
+// NOTE: This is good for a single assignment only
 switch ($_SERVER['REQUEST_METHOD']) {
   case 'GET':
     try {

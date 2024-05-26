@@ -134,25 +134,32 @@ switch ($_SERVER['REQUEST_METHOD']) {
     break;
 
   case 'DELETE':
-    $id = $_GET['id'];
+    $ids = json_decode(file_get_contents('php://input'), true);
 
-    $stmt = $pdo->prepare(
-      "
+    $sql = "
       DELETE FROM academic_years 
-      WHERE id = ?
-      "
-    );
+      WHERE id IN (
+    ";
 
-    $exec = $stmt->execute([$id]);
-
-    if(!$exec){
-      http_response_code(500);
-      echo json_encode(['message' => "Failed to delete academic year."]);
-      exit;
+    if(!empty($ids)) {
+      $placeholders = array_fill(0, count($ids), '?');
+      $sql .= implode(', ', $placeholders);
     }
 
-    http_response_code(200); 
-    echo json_encode(['message' => "Successfully deleted academic year."]);
+    $sql .= ")";
+
+    try {
+      $stmt = $pdo->prepare($sql);
+
+      $stmt->execute($ids);
+
+      http_response_code(200); 
+      echo json_encode(['message' => "Successfully deleted academic years."]);
+    } catch (\Throwable $th) {
+      http_response_code($th->getCode());
+      echo json_encode(['message' => "Failed to delete academic years."]);
+    }
+
     break;
   
   default:

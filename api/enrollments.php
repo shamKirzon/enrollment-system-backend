@@ -212,7 +212,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
     break;
 
   case 'DELETE':
-    $id = $_GET['id'];
+    // $id = $_GET['id'];
     $ids = json_decode(file_get_contents('php://input'), true);
 
     $sql = "

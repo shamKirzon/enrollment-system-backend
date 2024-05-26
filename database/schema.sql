@@ -435,3 +435,33 @@ CREATE TABLE IF NOT EXISTS student_grades (
 -- JOIN subject_strands substr ON substr.subject_level_id = sublvl.id
 -- JOIN strands str ON str.id = substr.strand_id
 -- GROUP BY sub.id;
+
+SELECT
+(
+  (
+    SELECT COUNT(student_id)
+    FROM enrollments
+    WHERE status = 'done' AND academic_year_id = ? AND year_level_id = ? 
+  ) /
+  (
+    SELECT COUNT(id) 
+    FROM section_levels
+    WHERE year_level_id = ?
+  )
+) AS student_count_per_section
+
+-- Select section levels
+SELECT * FROM section_levels
+WHERE year_level_id = ?
+
+-- Loop through `section_levels` and assign 40 students for each section.
+-- But also keep in mind if there are leftover students who have yet to be assigned.
+SELECT * FROM enrollments
+WHERE status = 'done' AND academic_year_id = ? AND year_level_id = ?
+ORDER BY enrolled_at
+LIMIT 40
+
+
+INSERT INTO section_assignments (id, enrollment_id, section_level_id)
+SELECT 
+
