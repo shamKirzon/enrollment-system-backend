@@ -10,7 +10,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
   case 'GET':
     $page = isset($_GET['page']) ? $_GET['page'] : 1;
     $limit = isset($_GET['limit']) ? $_GET['limit'] : 10;
-    $user_id = isset($_GET['user_id']) ? $_GET['user_id'] : null;
+    $student_id = isset($_GET['student_id']) ? $_GET['student_id'] : null;
     $offset = ($page - 1) * $limit;
 
     try {
@@ -19,16 +19,16 @@ switch ($_SERVER['REQUEST_METHOD']) {
       $count_sql = "
         SELECT COUNT(*) AS count
         FROM academic_years ay
-        LEFT JOIN enrollments e ON ay.id = e.academic_year_id 
-        WHERE (ay.status = 'finished' AND e.status = 'done' AND e.student_id = ?) OR ay.status = 'open'
+        LEFT JOIN enrollments e ON ay.id = e.academic_year_id AND e.student_id = ?
+        WHERE ay.status = 'open'
         ORDER BY ay.start_at DESC
       ";
 
       $count_stmt = $pdo->prepare($count_sql);
-      $count_stmt->execute([$user_id]);
+      $count_stmt->execute([$student_id]);
       $count = $count_stmt->fetchColumn();
 
-      if (!$count) {
+      if ($count === false) {
         $pdo->rollBack(); 
         http_response_code(400);
         echo json_encode(['message' => "No enrolled academic years found."]);
@@ -47,19 +47,19 @@ switch ($_SERVER['REQUEST_METHOD']) {
           yl.name AS year_level,
           s.name AS section_name
         FROM academic_years ay
-        LEFT JOIN enrollments e ON ay.id = e.academic_year_id 
+        LEFT JOIN enrollments e ON ay.id = e.academic_year_id AND e.student_id = ?
         LEFT JOIN year_levels yl ON yl.id = e.year_level_id
         LEFT JOIN section_assignments sa ON sa.enrollment_id = e.id
         LEFT JOIN section_levels sl ON sl.id = sa.section_level_id
         LEFT JOIN sections s ON s.id = sl.section_id
-        WHERE (ay.status = 'finished' AND e.status = 'done' AND e.student_id = ?) OR ay.status = 'open'
+        WHERE ay.status = 'open'
         ORDER BY ay.start_at DESC
       ";
 
       $sql .= " LIMIT " . $limit . " OFFSET " . $offset;
 
       $stmt = $pdo->prepare($sql);
-      $stmt->execute([$user_id]);
+      $stmt->execute([$student_id]);
       $academic_year_enrollments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
       if ($academic_year_enrollments === false) {
