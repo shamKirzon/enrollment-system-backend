@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: May 26, 2024 at 09:26 AM
+-- Generation Time: May 28, 2024 at 10:38 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -78,13 +78,6 @@ CREATE TABLE `enrolled_tuition_plans` (
   `tuition_plan_id` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `enrolled_tuition_plans`
---
-
-INSERT INTO `enrolled_tuition_plans` (`id`, `enrollment_id`, `tuition_plan_id`) VALUES
-('fbfbc4db-1a43-11ef-bfcc-0242f265daf9', 'fbfad9ff-1a43-11ef-bfcc-0242f265daf9', 'a-3');
-
 -- --------------------------------------------------------
 
 --
@@ -100,14 +93,6 @@ CREATE TABLE `enrollments` (
   `year_level_id` varchar(50) NOT NULL,
   `transaction_id` char(36) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `enrollments`
---
-
-INSERT INTO `enrollments` (`id`, `enrolled_at`, `status`, `student_id`, `academic_year_id`, `year_level_id`, `transaction_id`) VALUES
-('8a308296-1a2f-11ef-9706-00e18ce201d5', '2024-05-25 00:41:35', 'done', 'edcb084a-197b-11ef-a11c-00e18ce201d5', 4, 'g11', '8a2fd976-1a2f-11ef-9706-00e18ce201d5'),
-('fbfad9ff-1a43-11ef-bfcc-0242f265daf9', '2024-05-25 03:20:04', 'pending', 'edcb084a-197b-11ef-a11c-00e18ce201d5', 5, 'g12', 'fbfa1a12-1a43-11ef-bfcc-0242f265daf9');
 
 -- --------------------------------------------------------
 
@@ -263,13 +248,6 @@ CREATE TABLE `report_cards` (
   `enrollment_id` char(36) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `report_cards`
---
-
-INSERT INTO `report_cards` (`id`, `report_card_url`, `enrollment_id`) VALUES
-(2, '/storage/report-cards/STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_REPORT-CARD.jpg', '8a308296-1a2f-11ef-9706-00e18ce201d5');
-
 -- --------------------------------------------------------
 
 --
@@ -287,7 +265,10 @@ CREATE TABLE `sections` (
 
 INSERT INTO `sections` (`id`, `name`) VALUES
 ('agatha-of-sicily', 'Agatha of Sicily'),
-('ignatius-of-loyola', 'Ignatius of Loyola');
+('ignatius-of-loyola', 'Ignatius of Loyola'),
+('jerome', 'Jerome'),
+('laurence', 'Laurence'),
+('pedro-calungsod', 'Pedro Calungsod');
 
 -- --------------------------------------------------------
 
@@ -300,13 +281,6 @@ CREATE TABLE `section_assignments` (
   `enrollment_id` char(36) NOT NULL,
   `section_level_id` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `section_assignments`
---
-
-INSERT INTO `section_assignments` (`id`, `enrollment_id`, `section_level_id`) VALUES
-('23c8b6d0-1b2a-11ef-b7f6-00e18ce201d5', '8a308296-1a2f-11ef-9706-00e18ce201d5', 'agatha-of-sicily-g11');
 
 -- --------------------------------------------------------
 
@@ -327,7 +301,9 @@ CREATE TABLE `section_levels` (
 
 INSERT INTO `section_levels` (`id`, `section_id`, `year_level_id`, `adviser_id`) VALUES
 ('agatha-of-sicily-g11', 'agatha-of-sicily', 'g11', NULL),
-('ignatius-of-loyola-g9', 'ignatius-of-loyola', 'g9', NULL);
+('ignatius-of-loyola-g9', 'ignatius-of-loyola', 'g9', NULL),
+('jerome-g9', 'jerome', 'g9', NULL),
+('pedro-calungsod-g11', 'pedro-calungsod', 'g11', NULL);
 
 -- --------------------------------------------------------
 
@@ -346,7 +322,8 @@ CREATE TABLE `section_strands` (
 --
 
 INSERT INTO `section_strands` (`id`, `section_level_id`, `strand_id`) VALUES
-('agatha-of-sicily-g11-stem', 'agatha-of-sicily-g11', 'stem');
+('agatha-of-sicily-g11-stem', 'agatha-of-sicily-g11', 'stem'),
+('pedro-calungsod-g11-abm', 'pedro-calungsod-g11', 'abm');
 
 -- --------------------------------------------------------
 
@@ -537,14 +514,6 @@ CREATE TABLE `transactions` (
   `payment_mode_id` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `transactions`
---
-
-INSERT INTO `transactions` (`id`, `created_at`, `transaction_number`, `payment_amount`, `payment_method`, `payment_receipt_url`, `payment_mode_id`) VALUES
-('8a2fd976-1a2f-11ef-9706-00e18ce201d5', '2024-05-25 00:41:35', '1111111111', 40000.00, 'cash', '/storage/payment-receipts/STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_PAYMENT-RECEIPT.jpg', 'bpi-pateros-catholic-school-12345679'),
-('fbfa1a12-1a43-11ef-bfcc-0242f265daf9', '2024-05-25 03:20:04', '11111', 30000.00, 'installment', '/storage/payment-receipts/STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_PAYMENT-RECEIPT.jpg', 'bpi-pateros-catholic-school-12345679');
-
 -- --------------------------------------------------------
 
 --
@@ -615,6 +584,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `created_at`, `first_name`, `middle_name`, `last_name`, `suffix_name`, `email`, `contact_number`, `role`, `avatar_url`, `password`) VALUES
+('66b1695a-1bb6-11ef-8090-00e18ce201d5', '2024-05-26 23:19:29', 'Samantha Althea', 'Perlas', 'Oris', NULL, 'samantha@gmail.com', '0123456789', 'student', NULL, '$2y$10$1FxYXz/9laSFZFH57caJzO24h6GP4QESzWUjL7ZYHRfQ7a96bak3i'),
 ('b00cf259-197c-11ef-a11c-00e18ce201d5', '2024-05-24 03:21:19', 'Gojo', NULL, 'Satoru', NULL, 'admin@gmail.com', '1234', 'admin', NULL, '$2y$10$u2RssLCI91Oo2f6igDYZveUwS0cYQh63j/sokVpOCkbQSIFxU.gEi'),
 ('edcb084a-197b-11ef-a11c-00e18ce201d5', '2024-05-24 03:15:53', 'Lorena', NULL, 'Sanchez', NULL, 'lorena@gmail.com', '1234', 'student', NULL, '$2y$10$O.g10gwAcVFRD.iUXPA7m.A86jdLMhUVjPkKE8XAf4Uk44ZDUZ/aq'),
 ('f93a2ed0-19a5-11ef-ac3d-00e18ce201d5', '2024-05-24 08:16:51', 'Aaron', NULL, 'Melendres', NULL, 'aaron@gmail.com', '111', 'parent', NULL, '$2y$10$vGbAlELtlvj2bLhy12tICun/CDXQg/y0pBIOw4GQT2qYUtlZqoT/W');
@@ -627,28 +597,29 @@ INSERT INTO `users` (`id`, `created_at`, `first_name`, `middle_name`, `last_name
 
 CREATE TABLE `year_levels` (
   `id` varchar(50) NOT NULL,
-  `name` varchar(20) NOT NULL
+  `name` varchar(20) NOT NULL,
+  `education_level` enum('preschool','elementary','junior-high-school','senior-high-school') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `year_levels`
 --
 
-INSERT INTO `year_levels` (`id`, `name`) VALUES
-('g1', 'Grade 1'),
-('g10', 'Grade 10'),
-('g11', 'Grade 11'),
-('g12', 'Grade 12'),
-('g2', 'Grade 2'),
-('g3', 'Grade 3'),
-('g4', 'Grade 4'),
-('g5', 'Grade 5'),
-('g6', 'Grade 6'),
-('g7', 'Grade 7'),
-('g8', 'Grade 8'),
-('g9', 'Grade 9'),
-('kin', 'Kinder'),
-('nur', 'Nursery');
+INSERT INTO `year_levels` (`id`, `name`, `education_level`) VALUES
+('g1', 'Grade 1', 'elementary'),
+('g10', 'Grade 10', 'junior-high-school'),
+('g11', 'Grade 11', 'senior-high-school'),
+('g12', 'Grade 12', 'senior-high-school'),
+('g2', 'Grade 2', 'elementary'),
+('g3', 'Grade 3', 'elementary'),
+('g4', 'Grade 4', 'elementary'),
+('g5', 'Grade 5', 'elementary'),
+('g6', 'Grade 6', 'elementary'),
+('g7', 'Grade 7', 'junior-high-school'),
+('g8', 'Grade 8', 'junior-high-school'),
+('g9', 'Grade 9', 'junior-high-school'),
+('kin', 'Kinder', 'preschool'),
+('nur', 'Nursery', 'preschool');
 
 --
 -- Indexes for dumped tables
@@ -883,7 +854,7 @@ ALTER TABLE `addresses`
 -- AUTO_INCREMENT for table `report_cards`
 --
 ALTER TABLE `report_cards`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables

@@ -25,7 +25,11 @@ switch ($_SERVER['REQUEST_METHOD']) {
       $stmt->execute([$section_id, $section_name]);
 
       http_response_code(201); 
-      echo json_encode(['message' => "Successfully created section."]);
+      echo json_encode(['message' => "Successfully created section.", 
+        "data" => [
+          "section_id" => $section_id
+        ]
+      ]);
     } catch (\Throwable $th) {
       http_response_code(409);
       echo json_encode(['message' => "Check if section $section_id already exists."]);
@@ -33,11 +37,30 @@ switch ($_SERVER['REQUEST_METHOD']) {
     break;
 
   case 'DELETE': 
+    $ids = json_decode(file_get_contents('php://input'), true);
+
+    $sql = "
+      DELETE FROM sections 
+      WHERE id IN (
+    ";
+
+    if(!empty($ids)) {
+      $placeholders = array_fill(0, count($ids), '?');
+      $sql .= implode(', ', $placeholders);
+    }
+
+    $sql .= ")";
+
     try {
-      $json_data = json_decode(file_get_contents('php://input'), true);
+      $stmt = $pdo->prepare($sql);
+
+      $stmt->execute($ids);
+
+      http_response_code(200); 
+      echo json_encode(['message' => "Successfully deleted sections."]);
     } catch (\Throwable $th) {
       http_response_code($th->getCode());
-      echo json_encode(['message' => $th->getMessage()]);
+      echo json_encode(['message' => "Failed to delete sections."]);
     }
 
   break;

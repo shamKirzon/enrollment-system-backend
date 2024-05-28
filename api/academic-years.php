@@ -25,7 +25,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
       $count_stmt->execute();
       $count = $count_stmt->fetchColumn();
 
-      if (!$count) {
+      if ($count === false) {
         $pdo->rollBack(); 
         throw new Exception("No enrollments found.", 404);
       }
