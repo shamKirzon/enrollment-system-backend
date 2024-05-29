@@ -26,7 +26,7 @@ $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 try {
 
   if($role === 'admin') {
-    throw Exception(400, "You can't register an admin.");
+    throw new Exception(400, "You can't register an admin.");
   }
 
   $stmt = $pdo->prepare(

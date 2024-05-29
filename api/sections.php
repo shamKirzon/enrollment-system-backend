@@ -35,6 +35,30 @@ switch ($_SERVER['REQUEST_METHOD']) {
       echo json_encode(['message' => "Check if section $section_id already exists."]);
     }
     break;
+  
+  case 'PATCH':
+    $json_data = json_decode(file_get_contents('php://input'), true);
+
+    $section_id = $json_data['id'];
+    $section_name = $json_data['name'];
+
+    try {
+      $stmt = $pdo->prepare(
+        "
+        UPDATE sections 
+        SET name = ?
+        WHERE id = ?
+        "
+      );
+      $stmt->execute([$section_name, $section_id]);
+
+      http_response_code(200); 
+      echo json_encode(['message' => "Successfully updated section."]);
+    } catch (\Throwable $th) {
+      http_response_code($th->getCode());
+      echo json_encode(['message' => "Failed to update section."]);
+    }
+    break;
 
   case 'DELETE': 
     $ids = json_decode(file_get_contents('php://input'), true);

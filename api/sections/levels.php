@@ -84,21 +84,15 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $json_data = json_decode(file_get_contents('php://input'), true);
 
     $year_level_id = $json_data['year_level_id'];
-    // $strand_id = $json_data['strand_id'];
-    // $section_name = $json_data['name'];
     $section_id = $json_data['section_id'];
     $adviser_id = $json_data['adviser_id'];
 
-    $section_level_id = $section_id . "-" . $year_level_id;
-
     try {
-      $stmt = $pdo->prepare(
-        "
-        INSERT INTO section_levels (id, section_id, year_level_id, adviser_id)
-        VALUES (?, ?, ?, ?)
-        "
-      );
-      $stmt->execute([$section_level_id, $section_id, $year_level_id, $adviser_id]);
+      $section_level_id = insert($pdo, $json_data);
+
+      if($section_level_id === false) {
+        throw new Exception("Failed to insert section level.", 409);
+      }
 
       http_response_code(201); 
       echo json_encode(['message' => "Successfully created section level.", 
@@ -106,34 +100,87 @@ switch ($_SERVER['REQUEST_METHOD']) {
           "section_level_id" => $section_level_id
         ]
       ]);
-    } catch (\PDOException $th) {
-      http_response_code(409);
-      echo json_encode(['message' => "Check if section $section_level_id already exists."]);
+    } catch (\Throwable $th) {
+      http_response_code($th->getCode);
+      echo json_encode(['message' => $th->getMessage()]);
     }
 
-    // if ($strand_id !== null) {
-    //   $section_strand_id = $section_level_id . "-" . $strand_id;
-    //
-    //   try {
-    //     $stmt = $pdo->prepare(
-    //       "
-    //       INSERT INTO section_strands (id, section_level_id, strand_id)
-    //       VALUES (?, ?, ?)
-    //       "
-    //     );
-    //     $stmt->execute([$section_strand_id, $section_level_id, $strand_id]);
-    //   } catch (\PDOException $th) {
-    //     http_response_code(409);
-    //     echo json_encode(['message' => "Section $section_strand_id already exists."]);
-    //     break;
-    //   }
-    // }
+    break;
 
-  break;
+  case 'PATCH':
+    $json_data = json_decode(file_get_contents('php://input'), true);
+
+    $year_level_id = $json_data['year_level_id'];
+    $section_id = $json_data['section_id'];
+    $adviser_id = $json_data['adviser_id'];
+    // $section_level_id = $section_id . "-" . $year_level_id;
+
+    $check_stmt = $pdo->prepare("SELECT COUNT(*) FROM section_levels WHERE section_id = ?");
+    $check_stmt->execute([$section_id]);
+    $count = $check_stmt->fetchColumn();
+
+    if($count > 0) {
+      try {
+        $stmt = $pdo->prepare(
+          "
+          UPDATE section_levels
+          SET section_id = ?, year_level_id = ?, adviser_id = ?
+          WHERE section_id = ?
+          "
+        );
+        $stmt->execute([$section_id, $year_level_id, $adviser_id, $section_id]);
+
+        http_response_code(200); 
+        echo json_encode(['message' => "Successfully updated section level."]);
+      } catch (\PDOException $th) {
+        http_response_code($th->getCode());
+        echo json_encode(['message' => "Failed to update section level."]);
+      }
+    } else {
+      try {
+        $insert = insert($pdo, $json_data);
+
+        if($insert === false) {
+          throw new Exception("Failed to update section level.", 409);
+        }
+
+        http_response_code(200); 
+        echo json_encode(['message' => "Successfully updated section level."]);
+      } catch (\Throwable $th) {
+        http_response_code($th->getCode());
+        echo json_encode(['message' => "Failed to update section level."]);
+      }
+    }
+
+    break;
 
   default:
     http_response_code(405); // Method Not Allowed
     echo json_encode(['message' => "Unsupported request method."]);
     break;
+}
+
+function insert(PDO $pdo, mixed $json_data): string|false {
+  $year_level_id = $json_data['year_level_id'];
+  $section_id = $json_data['section_id'];
+  $adviser_id = $json_data['adviser_id'];
+
+  $section_level_id = $section_id . "-" . $year_level_id;
+
+  try {
+    $stmt = $pdo->prepare(
+      "
+      INSERT INTO section_levels (id, section_id, year_level_id, adviser_id)
+      VALUES (?, ?, ?, ?)
+      "
+    );
+    $stmt->execute([$section_level_id, $section_id, $year_level_id, $adviser_id]);
+
+    return $section_level_id;
+  } catch (\PDOException $th) {
+    http_response_code($th->getCode());
+  }
+
+  return false;
 }
 ?>
