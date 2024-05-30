@@ -70,10 +70,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
       $subject_id = $json_data['id'];
       $subject_name = $json_data['name'];
-      // $year_level_id = $json_data['year_level_id'];
-      // $strand_id = $json_data['strand_id'];
-
-      // $pdo->beginTransaction(); 
 
       try {
         $stmt = $pdo->prepare(
@@ -89,22 +85,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
         echo json_encode(['message' => "Subject $subject_id already exists."]);
         break;
       }
-
-      // if($year_level_id !== null) {
-      //   $stmt = $pdo->prepare(
-      //     "
-      //     INSERT INTO subject_levels (id, subject_id, year_level_id, strand_id)
-      //     VALUES (uuid(), ?, ?, ?)
-      //     "
-      //   );
-      //   $exec = $stmt->execute([$subject_id, $year_level_id, $strand_id]);
-      //
-      //   if(!$exec){
-      //     throw new Exception("Failed to create subject level.", 500);
-      //   }
-      // }
-      //
-      // $pdo->commit();
 
       http_response_code(201); 
       echo json_encode(['message' => "Successfully created subject."]);

@@ -82,13 +82,16 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
       $subject_id = $json_data['subject_id'];
       $year_level_ids = $json_data['year_level_ids'];
-      $strand_ids = $json_data['strand_ids'];
 
       $pdo->beginTransaction();
+
+      $subject_level_ids = [];
 
       if(!empty($year_level_ids)) {
         foreach ($year_level_ids as $year_level_id) {
           $subject_level_id = $subject_id . "-" . $year_level_id;
+
+          $subject_level_ids[] = $subject_level_id;
 
           try {
             $stmt = $pdo->prepare(
@@ -106,31 +109,15 @@ switch ($_SERVER['REQUEST_METHOD']) {
         }
       }
 
-      if(!empty($strand_ids)) {
-        // Insert all strands in `subject_strands` with the `id` of the newly inserted row in `subject_levels`
-        foreach ($strand_ids as $strand_id) {
-          $subject_strand_id = $subject_level_id . "-" . $strand_id;
-
-          try {
-            $stmt = $pdo->prepare(
-              "
-              INSERT INTO subject_strands (id, subject_level_id, strand_id)
-              VALUES (?, ?, ?)
-              "
-            );
-            $stmt->execute([$subject_strand_id, $subject_level_id, $strand_id]);
-          } catch (PDOException $th) {
-            http_response_code(409);
-            // echo json_encode(['message' => "Subject $subject_strand_id already exists."]);
-            // break;
-          }
-        }
-      }
-
       $pdo->commit();
 
       http_response_code(201); 
-      echo json_encode(['message' => "Successfully created subject level."]);
+      echo json_encode([
+        'message' => "Successfully created subject level.", 
+        "data" => [
+          "subject_level_ids" => $subject_level_ids
+        ]
+      ]);
     } catch (\Throwable $th) {
       http_response_code($th->getCode());
       echo json_encode(['message' => $th->getMessage()]);

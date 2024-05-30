@@ -77,10 +77,104 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
   break;
   case 'POST':
+    $json_data = json_decode(file_get_contents('php://input'), true);
+
+    $first_name = $json_data['first_name'];
+    $middle_name = $json_data['middle_name'];
+    $last_name = $json_data['last_name'];
+    $suffix_name = $json_data['suffix_name'];
+    $email = $json_data['email'];
+    $contact_number = $json_data['contact_number'];
+    $role = $json_data['role'];
+    $avatar_url = $json_data['avatar_url'];
+    $password = $json_data['password'];
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+    try {
+      $stmt = $pdo->prepare(
+        "
+        INSERT INTO users (id, first_name, middle_name, last_name, suffix_name, email, contact_number, role, avatar_url, password)
+        VALUES (uuid(), ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        "
+      );
+
+      $stmt->execute([$first_name, $middle_name, $last_name, $suffix_name, $email, $contact_number, $role, $avatar_url, $hashed_password]);
+
+      http_response_code(201); 
+      echo json_encode(['message' => "Successfully created user."]);
+    } catch (\Throwable $th) {
+      http_response_code($th->getCode());
+      echo json_encode(['message' => "Failed to create user."]);
+    }
   break;
   case 'PATCH':
+    $json_data = json_decode(file_get_contents('php://input'), true);
+
+    $id = $_GET['id'];
+    $first_name = $json_data['first_name'];
+    $middle_name = $json_data['middle_name'];
+    $last_name = $json_data['last_name'];
+    $suffix_name = $json_data['suffix_name'];
+    $email = $json_data['email'];
+    $contact_number = $json_data['contact_number'];
+    $role = $json_data['role'];
+    $avatar_url = $json_data['avatar_url'];
+    $password = $json_data['password'];
+    $hashed_password = $password === '' ? null : password_hash($password, PASSWORD_DEFAULT);
+
+    try {
+      $stmt = $pdo->prepare(
+        "
+        UPDATE users
+        SET 
+          first_name = ?,
+          middle_name = ?,
+          last_name = ?,
+          suffix_name = ?,
+          email = ?,
+          contact_number = ?,
+          role = ?,
+          avatar_url = ?,
+          password = COALESCE(?, password)
+        WHERE id = ?
+        "
+      );
+
+      $stmt->execute([$first_name, $middle_name, $last_name, $suffix_name, $email, $contact_number, $role, $avatar_url, $hashed_password, $id]);
+
+      http_response_code(200); 
+      echo json_encode(['message' => "Successfully updated user."]);
+    } catch (\Throwable $th) {
+      http_response_code($th->getCode());
+      echo json_encode(['message' => "Failed to update user."]);
+    }
   break;
   case 'DELETE':
+    $ids = json_decode(file_get_contents('php://input'), true);
+
+    $sql = "
+      DELETE FROM users 
+      WHERE id IN (
+    ";
+
+    if(!empty($ids)) {
+      $placeholders = array_fill(0, count($ids), '?');
+      $sql .= implode(', ', $placeholders);
+    }
+
+    $sql .= ")";
+
+    try {
+      $stmt = $pdo->prepare($sql);
+
+      $stmt->execute($ids);
+
+      http_response_code(200); 
+      echo json_encode(['message' => "Successfully deleted users."]);
+    } catch (\Throwable $th) {
+      http_response_code($th->getCode());
+      echo json_encode(['message' => "Failed to delete users."]);
+    }
   break;
   default:
     http_response_code(405); // Method Not Allowed
