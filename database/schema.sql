@@ -185,7 +185,7 @@ CREATE TABLE IF NOT EXISTS section_strands (
 
 -- Use to assign students to their corresponding sections per enrollment
 CREATE TABLE IF NOT EXISTS section_assignments (
-  id CHAR(36) PRIMARY KEY,
+  id INT PRIMARY KEY AUTO_INCREMENT,
 
   enrollment_id CHAR(36) NOT NULL,
   section_level_id VARCHAR(100) NOT NULL,
@@ -194,7 +194,16 @@ CREATE TABLE IF NOT EXISTS section_assignments (
   FOREIGN KEY (section_level_id) REFERENCES section_levels(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Only for SHS students
+CREATE TABLE IF NOT EXISTS section_assignment_strands (
+  id INT PRIMARY KEY AUTO_INCREMENT,
 
+  section_assignment_id INT NOT NULL,
+  strand_id VARCHAR(100) NOT NULL,
+
+  FOREIGN KEY (section_assignment_id) REFERENCES section_assignments(id) ON DELETE CASCADE,
+  FOREIGN KEY (strand_id) REFERENCES strands(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Payments/Transactions
 
@@ -313,6 +322,17 @@ CREATE TABLE IF NOT EXISTS enrollments (
 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Only for SHS students
+CREATE TABLE IF NOT EXISTS enrollment_strands (
+  id VARCHAR(150) PRIMARY KEY, -- `strand_id` + "-" + `id`
+
+  enrollment_id CHAR(36) NOT NULL,
+  strand_id VARCHAR(100) NOT NULL,
+
+  FOREIGN KEY(enrollment_id) REFERENCES enrollments(id) ON DELETE CASCADE,
+  FOREIGN KEY(strand_id) REFERENCES strands(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- All discounts for students
 CREATE TABLE IF NOT EXISTS enrollment_discount_applications (
   id CHAR(36) PRIMARY KEY,
@@ -336,7 +356,6 @@ CREATE TABLE IF NOT EXISTS enrolled_tuition_plans (
   FOREIGN KEY (tuition_plan_id) REFERENCES tuition_plans(id) ON DELETE CASCADE
 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 
 
@@ -377,6 +396,7 @@ CREATE TABLE IF NOT EXISTS subject_strands (
   id VARCHAR(50) PRIMARY KEY,
   subject_level_id VARCHAR(50) NOT NULL,
   strand_id VARCHAR(100) NOT NULL,
+  semester ENUM('1', '2') NOT NULL,
 
   FOREIGN KEY (subject_level_id) REFERENCES subject_levels(id) ON DELETE CASCADE,
   FOREIGN KEY (strand_id) REFERENCES strands(id) ON DELETE CASCADE
@@ -403,7 +423,7 @@ CREATE TABLE IF NOT EXISTS subject_periods (
 -- Grades
 -- Use to generate report card
 CREATE TABLE IF NOT EXISTS student_grades (
-  id CHAR(36) PRIMARY KEY,
+  id INT PRIMARY KEY AUTO_INCREMENT,
   grade DECIMAL(6, 3) UNSIGNED NOT NULL, -- Only up to 100.000
 
   -- First to Fourth grading period, may also be translated to periods of each SHS semester
@@ -419,7 +439,17 @@ CREATE TABLE IF NOT EXISTS student_grades (
   FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Only for SHS students
+-- Some subjects may differ in strands and semesters
+CREATE TABLE IF NOT EXISTS student_grade_strands (
+  id INT PRIMARY KEY AUTO_INCREMENT,
 
+  student_grade_id INT NOT NULL,
+  strand_id VARCHAR(100) NOT NULL,
+
+  FOREIGN KEY(student_grade_id) REFERENCES student_grades(id) ON DELETE CASCADE,
+  FOREIGN KEY(strand_id) REFERENCES strands(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- LEAVE THIS HERE

@@ -11,7 +11,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
     try {
       $academic_year_id = isset($_GET['year']) ? $_GET['year'] : null;
       $enrollment_status = isset($_GET['status']) ? $_GET['status'] : null;
-      $year_level_id = isset($_GET['level']) ? $_GET['level'] : null;
+      $year_level_id = isset($_GET['year_level']) ? $_GET['year_level'] : null;
       $page = isset($_GET['page']) ? $_GET['page'] : 1;
       $limit = isset($_GET['limit']) ? $_GET['limit'] : 10;
       $offset = ($page - 1) * $limit;
@@ -76,6 +76,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
         t.payment_method,
         t.transaction_number,
         tp.name AS tuition_plan_name,
+        str.id AS strand_id,
+        str.name AS strand_name,
         CONCAT('$server_url', t.payment_receipt_url) AS payment_receipt_url,
         CASE
           WHEN EXISTS (
@@ -93,6 +95,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
         JOIN transactions t ON e.transaction_id = t.id
         LEFT JOIN enrolled_tuition_plans etp ON etp.enrollment_id = e.id
         LEFT JOIN tuition_plans tp ON tp.id = etp.tuition_plan_id
+        LEFT JOIN enrollment_strands es ON es.enrollment_id = e.id
+        LEFT JOIN strands str ON str.id = es.strand_id
       ";
 
       $conditions = array();

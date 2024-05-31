@@ -5,30 +5,29 @@ $pdo = getConnection();
 
 header('Content-Type: application/json');
 
-// NOTE: This is good for a single assignment only
 switch ($_SERVER['REQUEST_METHOD']) {
   case 'GET':
     try {
       $stmt = $pdo->prepare(
         "
-        SELECT * FROM section_assignments
+        SELECT * FROM enrollment_strands
         "
       );
 
       $stmt->execute();
-      $section_assignments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      $enrollment_strands = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
       http_response_code(200);
 
       echo json_encode([
-        'message' => "Successfully fetched section assignments.",
+        'message' => "Successfully fetched tuition plans.",
         'data' => [
-          'section_assignments' => $section_assignments,
+          'enrollment_strands' => $enrollment_strands,
         ]
       ]);
     } catch (\Throwable $th) {
       http_response_code($th->getCode());
-      echo json_encode(['message' => "Failed to fetch section assignments."]);
+      echo json_encode(['message' => "Failed to fetch tuition plans."]);
     }
     break;
 
@@ -36,23 +35,24 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $json_data = json_decode(file_get_contents('php://input'), true);
 
     $enrollment_id = $json_data['enrollment_id'];
-    $section_level_id = $json_data['section_level_id'];
+    $strand_id = $json_data['strand_id'];
+    $enrollment_strand_id = $strand_id . "-" . $enrollment_id;
 
     try {
       $stmt = $pdo->prepare(
         "
-        INSERT INTO section_assignments (enrollment_id, section_level_id)
-        VALUES (?, ?)
+        INSERT INTO enrollment_strands (id, enrollment_id, strand_id)
+        VALUES (?, ?, ?)
         "
       );
 
-      $stmt->execute([$enrollment_id, $section_level_id]);
+      $stmt->execute([$enrollment_strand_id, $enrollment_id, $strand_id]);
 
       http_response_code(201); 
-      echo json_encode(['message' => "Successfully created section assignment."]);
+      echo json_encode(['message' => "Successfully created enrollment strand."]);
     } catch (\Throwable $th) {
-      http_response_code(409);
-      echo json_encode(['message' => "Failed to create section assignment."]);
+      http_response_code($th->getCode());
+      echo json_encode(['message' => "Failed to create enrollment strand."]);
     }
     break;
 

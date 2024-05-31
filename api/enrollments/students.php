@@ -44,14 +44,18 @@ switch ($_SERVER['REQUEST_METHOD']) {
           e.id AS enrollment_id, 
           e.enrolled_at, 
           e.status AS enrollment_status, 
-          yl.name AS year_level,
-          s.name AS section_name
+          yl.name AS year_level_name,
+          s.name AS section_name,
+          str.id AS strand_id,
+          str.name AS strand_name
         FROM academic_years ay
         LEFT JOIN enrollments e ON ay.id = e.academic_year_id AND e.student_id = ?
         LEFT JOIN year_levels yl ON yl.id = e.year_level_id
         LEFT JOIN section_assignments sa ON sa.enrollment_id = e.id
         LEFT JOIN section_levels sl ON sl.id = sa.section_level_id
         LEFT JOIN sections s ON s.id = sl.section_id
+        LEFT JOIN enrollment_strands es ON es.enrollment_id = e.id
+        LEFT JOIN strands str ON str.id = es.strand_id
         WHERE ay.status = 'open'
         ORDER BY ay.start_at DESC
       ";

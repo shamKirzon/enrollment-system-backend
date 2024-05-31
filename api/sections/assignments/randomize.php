@@ -69,6 +69,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     $year_level_id = $json_data['year_level_id'];
     $academic_year_id = $json_data['academic_year_id'];
+    $strand_id = isset($json_data['strand_id']) ? $json_data['strand_id'] : null;
 
     $pdo->beginTransaction();
 
@@ -89,18 +90,24 @@ switch ($_SERVER['REQUEST_METHOD']) {
             SELECT COUNT(student_id)
             FROM enrollments
             WHERE status = 'done' AND academic_year_id = ? AND year_level_id = ?
+            " . ($strand_id ? "AND id IN (SELECT enrollment_id FROM enrollment_strands WHERE strand_id = ?)" : "") . "
           ) /
           (
             SELECT COUNT(id)
             FROM section_levels
             WHERE year_level_id = ?
+            " . ($strand_id ? "AND id IN (SELECT section_level_id FROM section_assignment_strands WHERE strand_id = ?)" : "") . "
           )
         )
       ) AS student_count_per_section
     ";
 
     $stmt = $pdo->prepare($student_count_per_section_sql);
-    $stmt->execute([$academic_year_id, $year_level_id, $year_level_id]);
+    if ($strand_id) {
+        $stmt->execute([$academic_year_id, $year_level_id, $strand_id, $year_level_id, $strand_id]);
+    } else {
+        $stmt->execute([$academic_year_id, $year_level_id, $year_level_id]);
+    }
     $student_count_per_section = (int) $stmt->fetchColumn();
 
     if($student_count_per_section < 40) {
@@ -114,27 +121,39 @@ switch ($_SERVER['REQUEST_METHOD']) {
         WHERE 
           academic_year_id = ? 
           AND year_level_id = ? 
-          AND id NOT IN (
-            SELECT enrollment_id FROM section_assignments
-          )
+          " . ($strand_id ? "AND id IN (SELECT enrollment_id FROM enrollment_strands WHERE strand_id = ?)" : "AND id NOT IN (SELECT enrollment_id FROM section_assignments)") . "
         ORDER BY enrolled_at
         LIMIT $student_count_per_section
         OFFSET $offset
       ";
 
       $stmt = $pdo->prepare($enrollment_sql);
-      $stmt->execute([$academic_year_id, $year_level_id]);
+      if ($strand_id) {
+        $stmt->execute([$academic_year_id, $year_level_id, $strand_id]);
+      } else {
+        $stmt->execute([$academic_year_id, $year_level_id]);
+      }
       $student_enrollments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-      // echo $section_levels[$i];
       foreach ($student_enrollments as $enrollment) {
         $section_assignment_sql = "
-          INSERT INTO section_assignments (id, enrollment_id, section_level_id)
-          VALUES(uuid(), ?, ?)
+          INSERT INTO section_assignments (enrollment_id, section_level_id)
+          VALUES(?, ?)
         ";
 
         $stmt = $pdo->prepare($section_assignment_sql);
         $stmt->execute([$enrollment['id'], $section_levels[$i]]);
+        $section_assignment_id = $pdo->lastInsertId();
+
+        if ($strand_id) {
+          $section_assignment_strand_sql = "
+            INSERT INTO section_assignment_strands (section_assignment_id, strand_id)
+            VALUES(?, ?)
+          ";
+
+          $stmt = $pdo->prepare($section_assignment_strand_sql);
+          $stmt->execute([$section_assignment_id, $strand_id]);
+        }
       }
     }
 
