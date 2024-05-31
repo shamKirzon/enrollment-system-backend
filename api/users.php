@@ -10,69 +10,99 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $page = isset($_GET['page']) ? $_GET['page'] : 1;
     $limit = isset($_GET['limit']) ? $_GET['limit'] : 10;
     $role = isset($_GET['role']) ? $_GET['role'] : null;
+    $query = isset($_GET['q']) ? $_GET['q'] : null;
     $offset = ($page - 1) * $limit;
 
     try {
-      $pdo->beginTransaction(); 
+        $pdo->beginTransaction();
 
-      $count_sql = "
-        SELECT COUNT(*) FROM users
-      ";
+        $conditions = [];
+        $params = [];
 
-      $count_stmt = $pdo->prepare($count_sql);
-      $count_stmt->execute();
-      $count = $count_stmt->fetchColumn();
+        if ($role !== null) {
+            $conditions[] = "role = ?";
+            $params[] = $role;
+        }
 
-      if ($count === false) {
-        $pdo->rollBack(); 
-        throw new Exception("Failed to fetch user count.", 400);
-      }
+        if ($query !== null) {
+            $conditions[] = "(first_name LIKE ? OR middle_name LIKE ? OR last_name LIKE ? OR email LIKE ?)";
+            $searchTerm = '%' . $query . '%';
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+        }
 
-      $role_count_sql = "
-        SELECT
-          role,
-          (SELECT COUNT(*) FROM users WHERE users.role = u.role) AS value
-        FROM users u
-        GROUP BY u.role;
-      ";
+        $where_clause = "";
 
-      $role_count_stmt = $pdo->prepare($role_count_sql);
-      $role_count_stmt->execute();
-      $role_count = $role_count_stmt->fetchAll(PDO::FETCH_ASSOC);
+        if (!empty($conditions)) {
+            $where_clause = " WHERE " . implode(" AND ", $conditions);
+        }
 
-      if ($role_count === false) {
-        $pdo->rollBack(); 
-        throw new Exception("Failed to fetch user role count.", 400);
-      }
+        $count_sql = "
+            SELECT COUNT(*) FROM users
+            $where_clause
+        ";
 
-      $sql = "
-        SELECT id, created_at, first_name, middle_name, last_name, suffix_name, email, contact_number, role, avatar_url
-        FROM users
-        LIMIT $limit OFFSET $offset
-      ";
+        $count_stmt = $pdo->prepare($count_sql);
+        $count_stmt->execute($params);
+        $count = $count_stmt->fetchColumn();
 
-      $users = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+        if ($count === false) {
+            $pdo->rollBack();
+            throw new Exception("Failed to fetch user count.", 400);
+        }
 
-      if ($users === false) {
-        $pdo->rollBack(); 
-        throw new Exception("Failed to fetch users.", 400);
-      }
+        $role_count_sql = "
+            SELECT
+                role,
+                (SELECT COUNT(*) FROM users WHERE users.role = u.role) AS value
+            FROM users u
+            GROUP BY u.role;
+        ";
 
-      $pdo->commit(); 
+        $role_count_stmt = $pdo->prepare($role_count_sql);
+        $role_count_stmt->execute();
+        $role_count = $role_count_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-      http_response_code(200);
+        if ($role_count === false) {
+            $pdo->rollBack();
+            throw new Exception("Failed to fetch user role count.", 400);
+        }
 
-      echo json_encode([
-        'message' => "Successfully fetched users.",
-        'data' => [
-          'users' => $users,
-          'role_count' => $role_count,
-          'count' => $count
-        ]
-      ]);
+        $sql = "
+            SELECT id, created_at, first_name, middle_name, last_name, suffix_name, email, contact_number, role, avatar_url
+            FROM users
+            $where_clause
+            LIMIT $limit OFFSET $offset
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+
+        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($users === false) {
+            $pdo->rollBack();
+            throw new PDOException("Failed to fetch users.", 400);
+        }
+
+        $pdo->commit();
+
+        http_response_code(200);
+
+        echo json_encode([
+            'message' => "Successfully fetched users.",
+            'data' => [
+                'users' => $users,
+                'role_count' => $role_count,
+                'count' => $count
+            ]
+        ]);
     } catch (\Throwable $th) {
-      http_response_code($th->getCode());
-      echo json_encode(['message' => $th->getMessage()]);
+        $pdo->rollBack();
+        http_response_code($th->getCode());
+        echo json_encode(['message' => $th->getMessage()]);
     }
 
   break;
