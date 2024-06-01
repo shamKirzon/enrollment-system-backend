@@ -57,42 +57,47 @@ switch ($_SERVER['REQUEST_METHOD']) {
       $server_url = get_server_url();
 
       $sql = "
-      SELECT 
-        e.id AS enrollment_id, 
-        e.enrolled_at, 
-        e.status, 
-        e.student_id, 
-        e.academic_year_id, 
-        e.year_level_id,
-        e.transaction_id,
-        u.first_name, 
-        u.middle_name, 
-        u.last_name, 
-        u.suffix_name, 
-        ay.start_at AS academic_year_start_at, 
-        ay.end_at AS academic_year_end_at, 
-        yl.name AS year_level_name,
-        t.payment_amount,
-        t.payment_method,
-        t.transaction_number,
-        tp.name AS tuition_plan_name,
-        str.id AS strand_id,
-        str.name AS strand_name,
-        CONCAT('$server_url', t.payment_receipt_url) AS payment_receipt_url,
-        CASE
-          WHEN EXISTS (
-            SELECT 1
-            FROM enrollments sub_e
-            WHERE sub_e.status = 'done' AND sub_e.student_id = u.id
-            ORDER BY sub_e.enrolled_at DESC
-          ) THEN 'old'
-          ELSE 'new'
-        END AS student_status
+        SELECT 
+            e.id AS enrollment_id, 
+            e.enrolled_at, 
+            e.status, 
+            e.student_id, 
+            e.academic_year_id, 
+            e.year_level_id,
+            u.first_name, 
+            u.middle_name, 
+            u.last_name, 
+            u.suffix_name, 
+            ay.start_at AS academic_year_start_at, 
+            ay.end_at AS academic_year_end_at, 
+            yl.name AS year_level_name,
+            t.id AS transaction_id,
+            t.payment_amount,
+            t.payment_method,
+            t.transaction_number,
+            tp.name AS tuition_plan_name,
+            str.id AS strand_id,
+            str.name AS strand_name,
+            CONCAT('$server_url', t.payment_receipt_url) AS payment_receipt_url,
+            CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM enrollments sub_e
+                    JOIN academic_years sub_ay ON sub_e.academic_year_id = sub_ay.id
+                    WHERE 
+                        sub_e.student_id = e.student_id 
+                        AND sub_ay.start_at = ay.start_at - INTERVAL 1 YEAR
+                        AND sub_ay.end_at = ay.end_at - INTERVAL 1 YEAR
+                        AND sub_e.status = 'done'
+                ) THEN 'old'
+                ELSE 'new'
+            END AS student_status
         FROM enrollments e
         JOIN users u ON e.student_id = u.id
         JOIN academic_years ay ON e.academic_year_id = ay.id
         JOIN year_levels yl ON e.year_level_id = yl.id
-        JOIN transactions t ON e.transaction_id = t.id
+        JOIN enrollment_transactions et ON et.enrollment_id = e.id
+        JOIN transactions t ON t.id = et.transaction_id
         LEFT JOIN enrolled_tuition_plans etp ON etp.enrollment_id = e.id
         LEFT JOIN tuition_plans tp ON tp.id = etp.tuition_plan_id
         LEFT JOIN enrollment_strands es ON es.enrollment_id = e.id
@@ -174,12 +179,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $transaction = $stmt->fetch();
 
     $enrollment_sql = "
-    INSERT INTO enrollments (tuition_plan, payment_receipt_url, student_id, academic_year_id, year_level_id, transaction_id) 
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO enrollments (tuition_plan, payment_receipt_url, student_id, academic_year_id, year_level_id) 
+    VALUES (?, ?, ?, ?, ?)
     ";
 
     $stmt = $pdo->prepare($enrollment_sql);
-    $stmt->execute([$tuition_plan, 'hello/world', $student_id, $academic_year_id, $year_level_id, $transaction['id']]);
+    $stmt->execute([$tuition_plan, 'hello/world', $student_id, $academic_year_id, $year_level_id]);
 
     $pdo->commit(); 
 

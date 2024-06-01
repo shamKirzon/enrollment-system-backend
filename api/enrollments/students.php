@@ -97,11 +97,10 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $student_id = $json_data['student_id'];
     $academic_year_id = $json_data['academic_year_id'];
     $year_level_id = $json_data['year_level_id'];
-    $transaction_id = $json_data['transaction_id'];
 
     $sql = "
-      INSERT INTO enrollments (id, student_id, academic_year_id, year_level_id, transaction_id) 
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO enrollments (id, student_id, academic_year_id, year_level_id) 
+      VALUES (?, ?, ?, ?)
     ";
 
     try {
@@ -109,7 +108,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
       $enrollment_id = $stmt->fetchColumn();
 
       $stmt = $pdo->prepare($sql);
-      $stmt->execute([$enrollment_id, $student_id, $academic_year_id, $year_level_id, $transaction_id]);
+      $stmt->execute([$enrollment_id, $student_id, $academic_year_id, $year_level_id]);
 
       http_response_code(201); 
       echo json_encode([

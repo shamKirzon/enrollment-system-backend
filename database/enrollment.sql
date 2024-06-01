@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: May 28, 2024 at 10:38 AM
+-- Generation Time: Jun 01, 2024 at 06:25 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -39,7 +39,7 @@ CREATE TABLE `academic_years` (
 --
 
 INSERT INTO `academic_years` (`id`, `start_at`, `end_at`, `status`) VALUES
-(3, '2023-08-05', '2024-05-01', 'finished'),
+(3, '2023-08-05', '2024-05-01', 'open'),
 (4, '2024-08-05', '2025-05-01', 'open'),
 (5, '2025-08-05', '2026-05-01', 'open');
 
@@ -93,6 +93,14 @@ CREATE TABLE `enrollments` (
   `year_level_id` varchar(50) NOT NULL,
   `transaction_id` char(36) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `enrollments`
+--
+
+INSERT INTO `enrollments` (`id`, `enrolled_at`, `status`, `student_id`, `academic_year_id`, `year_level_id`, `transaction_id`) VALUES
+('002d0b33-1f17-11ef-bf56-00e18ce201d5', '2024-05-31 06:28:31', 'done', 'edcb084a-197b-11ef-a11c-00e18ce201d5', 3, 'g10', '002c6b9f-1f17-11ef-bf56-00e18ce201d5'),
+('800e1e65-1ee0-11ef-bf56-00e18ce201d5', '2024-05-30 23:58:24', 'done', 'edcb084a-197b-11ef-a11c-00e18ce201d5', 4, 'g11', '800d62e9-1ee0-11ef-bf56-00e18ce201d5');
 
 -- --------------------------------------------------------
 
@@ -182,6 +190,25 @@ INSERT INTO `enrollment_fee_levels` (`id`, `amount`, `enrollment_fee_id`, `year_
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `enrollment_strands`
+--
+
+CREATE TABLE `enrollment_strands` (
+  `id` varchar(150) NOT NULL,
+  `enrollment_id` char(36) NOT NULL,
+  `strand_id` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `enrollment_strands`
+--
+
+INSERT INTO `enrollment_strands` (`id`, `enrollment_id`, `strand_id`) VALUES
+('stem-800e1e65-1ee0-11ef-bf56-00e18ce201d5', '800e1e65-1ee0-11ef-bf56-00e18ce201d5', 'stem');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `parent_student_links`
 --
 
@@ -248,6 +275,13 @@ CREATE TABLE `report_cards` (
   `enrollment_id` char(36) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `report_cards`
+--
+
+INSERT INTO `report_cards` (`id`, `report_card_url`, `enrollment_id`) VALUES
+(6, '/storage/report-cards/STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_REPORT-CARD.jpg', '800e1e65-1ee0-11ef-bf56-00e18ce201d5');
+
 -- --------------------------------------------------------
 
 --
@@ -265,6 +299,9 @@ CREATE TABLE `sections` (
 
 INSERT INTO `sections` (`id`, `name`) VALUES
 ('agatha-of-sicily', 'Agatha of Sicily'),
+('alexandria', 'Alexandria'),
+('andrew', 'Andrew'),
+('callistus', 'Callistus'),
 ('ignatius-of-loyola', 'Ignatius of Loyola'),
 ('jerome', 'Jerome'),
 ('laurence', 'Laurence'),
@@ -277,9 +314,29 @@ INSERT INTO `sections` (`id`, `name`) VALUES
 --
 
 CREATE TABLE `section_assignments` (
-  `id` char(36) NOT NULL,
+  `id` int(11) NOT NULL,
   `enrollment_id` char(36) NOT NULL,
   `section_level_id` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `section_assignments`
+--
+
+INSERT INTO `section_assignments` (`id`, `enrollment_id`, `section_level_id`) VALUES
+(1, '800e1e65-1ee0-11ef-bf56-00e18ce201d5', 'agatha-of-sicily-g11'),
+(2, '002d0b33-1f17-11ef-bf56-00e18ce201d5', 'andrew-g10');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `section_assignment_strands`
+--
+
+CREATE TABLE `section_assignment_strands` (
+  `id` int(11) NOT NULL,
+  `section_assignment_id` int(11) NOT NULL,
+  `strand_id` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -301,8 +358,12 @@ CREATE TABLE `section_levels` (
 
 INSERT INTO `section_levels` (`id`, `section_id`, `year_level_id`, `adviser_id`) VALUES
 ('agatha-of-sicily-g11', 'agatha-of-sicily', 'g11', NULL),
+('alexandria-g12', 'alexandria', 'g11', NULL),
+('andrew-g10', 'andrew', 'g10', NULL),
+('callistus-g7', 'callistus', 'g8', '71b7dc45-197a-11ef-a11c-00e18ce201d5'),
 ('ignatius-of-loyola-g9', 'ignatius-of-loyola', 'g9', NULL),
 ('jerome-g9', 'jerome', 'g9', NULL),
+('laurence-g6', 'laurence', 'g6', NULL),
 ('pedro-calungsod-g11', 'pedro-calungsod', 'g11', NULL);
 
 -- --------------------------------------------------------
@@ -323,7 +384,8 @@ CREATE TABLE `section_strands` (
 
 INSERT INTO `section_strands` (`id`, `section_level_id`, `strand_id`) VALUES
 ('agatha-of-sicily-g11-stem', 'agatha-of-sicily-g11', 'stem'),
-('pedro-calungsod-g11-abm', 'pedro-calungsod-g11', 'abm');
+('alexandria-g12-humss', 'alexandria-g12', 'ad'),
+('pedro-calungsod-g11-stem', 'pedro-calungsod-g11', 'abm');
 
 -- --------------------------------------------------------
 
@@ -380,7 +442,7 @@ INSERT INTO `student_family_members` (`id`, `first_name`, `middle_name`, `last_n
 --
 
 CREATE TABLE `student_grades` (
-  `id` char(36) NOT NULL,
+  `id` int(11) NOT NULL,
   `grade` decimal(6,3) UNSIGNED NOT NULL,
   `period` enum('1','2','3','4') NOT NULL,
   `subject_level_id` varchar(50) NOT NULL,
@@ -392,7 +454,44 @@ CREATE TABLE `student_grades` (
 --
 
 INSERT INTO `student_grades` (`id`, `grade`, `period`, `subject_level_id`, `student_id`) VALUES
-('e9041f6d-199e-11ef-ac3d-00e18ce201d5', 95.000, '1', 'CHEM1-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5');
+(5, 95.000, '1', 'STEM-ELEC1-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(6, 94.000, '1', 'CHEM1-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(7, 96.000, '2', 'CHEM1-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(8, 99.000, '2', 'STEM-ELEC1-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(9, 99.000, '3', 'STEM-ELEC2-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(10, 99.000, '4', 'STEM-ELEC2-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(11, 95.000, '3', 'CHEM2-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(12, 95.000, '4', 'CHEM2-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(13, 95.000, '1', 'PE-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(14, 92.000, '2', 'PE-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(16, 93.000, '3', 'PE-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(18, 94.000, '4', 'PE-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `student_grade_strands`
+--
+
+CREATE TABLE `student_grade_strands` (
+  `id` int(11) NOT NULL,
+  `student_grade_id` int(11) NOT NULL,
+  `strand_id` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `student_grade_strands`
+--
+
+INSERT INTO `student_grade_strands` (`id`, `student_grade_id`, `strand_id`) VALUES
+(1, 5, 'stem'),
+(2, 6, 'stem'),
+(3, 7, 'stem'),
+(4, 8, 'stem'),
+(5, 9, 'stem'),
+(6, 10, 'stem'),
+(7, 11, 'stem'),
+(8, 12, 'stem');
 
 -- --------------------------------------------------------
 
@@ -440,8 +539,16 @@ CREATE TABLE `subjects` (
 
 INSERT INTO `subjects` (`id`, `name`) VALUES
 ('CHEM1', 'Chemistry 1'),
+('CHEM2', 'Chemistry 2'),
 ('CL', 'Christian Living'),
-('STEM-ELEC-1', 'STEM Elective 1');
+('PE', 'Physical Education'),
+('PHILO', 'Philosophy'),
+('SOCSTUD', 'Social Studies'),
+('STEM-ELEC1', 'STEM Elective 1'),
+('STEM-ELEC2', 'STEM Elective 2'),
+('TEST-AGAIN', 'Test Again'),
+('TEST-SHS', 'Test SHS'),
+('TSET', 'Test');
 
 -- --------------------------------------------------------
 
@@ -461,7 +568,41 @@ CREATE TABLE `subject_levels` (
 
 INSERT INTO `subject_levels` (`id`, `subject_id`, `year_level_id`) VALUES
 ('CHEM1-g11', 'CHEM1', 'g11'),
-('STEM-ELEC-1-g11', 'STEM-ELEC-1', 'g11');
+('CHEM2-g11', 'CHEM2', 'g11'),
+('CL-g1', 'CL', 'g1'),
+('CL-g10', 'CL', 'g10'),
+('CL-g2', 'CL', 'g2'),
+('CL-g3', 'CL', 'g3'),
+('CL-g4', 'CL', 'g4'),
+('CL-g5', 'CL', 'g5'),
+('CL-g6', 'CL', 'g6'),
+('CL-g7', 'CL', 'g7'),
+('CL-g8', 'CL', 'g8'),
+('CL-g9', 'CL', 'g9'),
+('PE-g1', 'PE', 'g1'),
+('PE-g10', 'PE', 'g10'),
+('PE-g2', 'PE', 'g2'),
+('PE-g3', 'PE', 'g3'),
+('PE-g4', 'PE', 'g4'),
+('PE-g5', 'PE', 'g5'),
+('PE-g6', 'PE', 'g6'),
+('PE-g7', 'PE', 'g7'),
+('PE-g8', 'PE', 'g8'),
+('PE-g9', 'PE', 'g9'),
+('PHILO-g11', 'PHILO', 'g11'),
+('SOCSTUD-g10', 'SOCSTUD', 'g10'),
+('SOCSTUD-g7', 'SOCSTUD', 'g7'),
+('SOCSTUD-g8', 'SOCSTUD', 'g8'),
+('SOCSTUD-g9', 'SOCSTUD', 'g9'),
+('STEM-ELEC1-g11', 'STEM-ELEC1', 'g11'),
+('STEM-ELEC2-g11', 'STEM-ELEC2', 'g11'),
+('TEST-AGAIN-g1', 'TEST-AGAIN', 'g1'),
+('TEST-AGAIN-g2', 'TEST-AGAIN', 'g2'),
+('TEST-AGAIN-g3', 'TEST-AGAIN', 'g3'),
+('TEST-AGAIN-g4', 'TEST-AGAIN', 'g4'),
+('TEST-AGAIN-g5', 'TEST-AGAIN', 'g5'),
+('TEST-AGAIN-g6', 'TEST-AGAIN', 'g6'),
+('TEST-SHS-g11', 'TEST-SHS', 'g11');
 
 -- --------------------------------------------------------
 
@@ -472,8 +613,29 @@ INSERT INTO `subject_levels` (`id`, `subject_id`, `year_level_id`) VALUES
 CREATE TABLE `subject_strands` (
   `id` varchar(50) NOT NULL,
   `subject_level_id` varchar(50) NOT NULL,
-  `strand_id` varchar(100) NOT NULL
+  `strand_id` varchar(100) NOT NULL,
+  `semester` enum('1','2') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `subject_strands`
+--
+
+INSERT INTO `subject_strands` (`id`, `subject_level_id`, `strand_id`, `semester`) VALUES
+('CHEM1-g11-abm', 'CHEM1-g11', 'abm', '1'),
+('CHEM1-g11-gas', 'CHEM1-g11', 'gas', '1'),
+('CHEM1-g11-stem', 'CHEM1-g11', 'stem', '1'),
+('CHEM2-g11-stem-2', 'CHEM2-g11', 'stem', '2'),
+('PHILO-g11-abm-1', 'PHILO-g11', 'abm', '1'),
+('PHILO-g11-ad-1', 'PHILO-g11', 'ad', '1'),
+('PHILO-g11-gas-1', 'PHILO-g11', 'gas', '1'),
+('PHILO-g11-humss-1', 'PHILO-g11', 'humss', '1'),
+('PHILO-g11-stem-1', 'PHILO-g11', 'stem', '1'),
+('PHILO-g11-tvl-1', 'PHILO-g11', 'tvl', '1'),
+('STEM-ELEC1-g11-stem-1', 'STEM-ELEC1-g11', 'stem', '1'),
+('STEM-ELEC2-g11-stem-2', 'STEM-ELEC2-g11', 'stem', '2'),
+('TEST-SHS-g11-gas', 'TEST-SHS-g11', 'gas', '1'),
+('TEST-SHS-g11-stem', 'TEST-SHS-g11', 'stem', '1');
 
 -- --------------------------------------------------------
 
@@ -513,6 +675,18 @@ CREATE TABLE `transactions` (
   `payment_receipt_url` text NOT NULL,
   `payment_mode_id` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `transactions`
+--
+
+INSERT INTO `transactions` (`id`, `created_at`, `transaction_number`, `payment_amount`, `payment_method`, `payment_receipt_url`, `payment_mode_id`) VALUES
+('002c6b9f-1f17-11ef-bf56-00e18ce201d5', '2024-05-31 06:28:31', '111111111', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g10_3.jpg', 'bpi-pateros-catholic-school-12345679'),
+('28872fb8-1d83-11ef-9953-00e18ce201d5', '2024-05-29 06:17:42', '11111111111', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679'),
+('588b8a3f-1ee0-11ef-bf56-00e18ce201d5', '2024-05-30 23:57:17', '1111', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679'),
+('6c6d946c-1d83-11ef-9953-00e18ce201d5', '2024-05-29 06:19:36', '2222222222', 41000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
+('800d62e9-1ee0-11ef-bf56-00e18ce201d5', '2024-05-30 23:58:24', '11111', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679'),
+('a3041691-1edf-11ef-bf56-00e18ce201d5', '2024-05-30 23:52:13', '1111', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679');
 
 -- --------------------------------------------------------
 
@@ -584,7 +758,9 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `created_at`, `first_name`, `middle_name`, `last_name`, `suffix_name`, `email`, `contact_number`, `role`, `avatar_url`, `password`) VALUES
+('66844843-1e12-11ef-9209-00e18ce201d5', '2024-05-29 23:23:04', 'Hanni', NULL, 'My Love', NULL, 'hanni@gmail.com', '143', 'admin', NULL, '$2y$10$d1diUyACOG1Z0dPVR08e1eOzeW9cJVHuoRo8icq7N32SGGR8w0d.6'),
 ('66b1695a-1bb6-11ef-8090-00e18ce201d5', '2024-05-26 23:19:29', 'Samantha Althea', 'Perlas', 'Oris', NULL, 'samantha@gmail.com', '0123456789', 'student', NULL, '$2y$10$1FxYXz/9laSFZFH57caJzO24h6GP4QESzWUjL7ZYHRfQ7a96bak3i'),
+('8accfe15-1d6f-11ef-9953-00e18ce201d5', '2024-05-29 03:57:17', 'Rhenz', NULL, 'Ganotice', NULL, 'rhenz@gmail.com', '123', 'parent', NULL, '$2y$10$5LXJYzX6SeS9MIx.gDUjT..ClJNDilw51t/MXQeVURSRNh3TCmkj6'),
 ('b00cf259-197c-11ef-a11c-00e18ce201d5', '2024-05-24 03:21:19', 'Gojo', NULL, 'Satoru', NULL, 'admin@gmail.com', '1234', 'admin', NULL, '$2y$10$u2RssLCI91Oo2f6igDYZveUwS0cYQh63j/sokVpOCkbQSIFxU.gEi'),
 ('edcb084a-197b-11ef-a11c-00e18ce201d5', '2024-05-24 03:15:53', 'Lorena', NULL, 'Sanchez', NULL, 'lorena@gmail.com', '1234', 'student', NULL, '$2y$10$O.g10gwAcVFRD.iUXPA7m.A86jdLMhUVjPkKE8XAf4Uk44ZDUZ/aq'),
 ('f93a2ed0-19a5-11ef-ac3d-00e18ce201d5', '2024-05-24 08:16:51', 'Aaron', NULL, 'Melendres', NULL, 'aaron@gmail.com', '111', 'parent', NULL, '$2y$10$vGbAlELtlvj2bLhy12tICun/CDXQg/y0pBIOw4GQT2qYUtlZqoT/W');
@@ -684,6 +860,14 @@ ALTER TABLE `enrollment_fee_levels`
   ADD KEY `year_level_id` (`year_level_id`);
 
 --
+-- Indexes for table `enrollment_strands`
+--
+ALTER TABLE `enrollment_strands`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `enrollment_id` (`enrollment_id`),
+  ADD KEY `strand_id` (`strand_id`);
+
+--
 -- Indexes for table `parent_student_links`
 --
 ALTER TABLE `parent_student_links`
@@ -726,6 +910,14 @@ ALTER TABLE `section_assignments`
   ADD KEY `section_level_id` (`section_level_id`);
 
 --
+-- Indexes for table `section_assignment_strands`
+--
+ALTER TABLE `section_assignment_strands`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `section_assignment_id` (`section_assignment_id`),
+  ADD KEY `strand_id` (`strand_id`);
+
+--
 -- Indexes for table `section_levels`
 --
 ALTER TABLE `section_levels`
@@ -763,6 +955,14 @@ ALTER TABLE `student_grades`
   ADD PRIMARY KEY (`id`),
   ADD KEY `subject_level_id` (`subject_level_id`),
   ADD KEY `student_id` (`student_id`);
+
+--
+-- Indexes for table `student_grade_strands`
+--
+ALTER TABLE `student_grade_strands`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `student_grade_id` (`student_grade_id`),
+  ADD KEY `strand_id` (`strand_id`);
 
 --
 -- Indexes for table `student_profiles`
@@ -854,7 +1054,31 @@ ALTER TABLE `addresses`
 -- AUTO_INCREMENT for table `report_cards`
 --
 ALTER TABLE `report_cards`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `section_assignments`
+--
+ALTER TABLE `section_assignments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `section_assignment_strands`
+--
+ALTER TABLE `section_assignment_strands`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `student_grades`
+--
+ALTER TABLE `student_grades`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+
+--
+-- AUTO_INCREMENT for table `student_grade_strands`
+--
+ALTER TABLE `student_grade_strands`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Constraints for dumped tables
@@ -891,6 +1115,13 @@ ALTER TABLE `enrollment_fee_levels`
   ADD CONSTRAINT `enrollment_fee_levels_ibfk_2` FOREIGN KEY (`year_level_id`) REFERENCES `year_levels` (`id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `enrollment_strands`
+--
+ALTER TABLE `enrollment_strands`
+  ADD CONSTRAINT `enrollment_strands_ibfk_1` FOREIGN KEY (`enrollment_id`) REFERENCES `enrollments` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `enrollment_strands_ibfk_2` FOREIGN KEY (`strand_id`) REFERENCES `strands` (`id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `parent_student_links`
 --
 ALTER TABLE `parent_student_links`
@@ -915,6 +1146,13 @@ ALTER TABLE `report_cards`
 ALTER TABLE `section_assignments`
   ADD CONSTRAINT `section_assignments_ibfk_1` FOREIGN KEY (`enrollment_id`) REFERENCES `enrollments` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `section_assignments_ibfk_2` FOREIGN KEY (`section_level_id`) REFERENCES `section_levels` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `section_assignment_strands`
+--
+ALTER TABLE `section_assignment_strands`
+  ADD CONSTRAINT `section_assignment_strands_ibfk_1` FOREIGN KEY (`section_assignment_id`) REFERENCES `section_assignments` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `section_assignment_strands_ibfk_2` FOREIGN KEY (`strand_id`) REFERENCES `strands` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `section_levels`
@@ -944,6 +1182,13 @@ ALTER TABLE `student_family_members`
 ALTER TABLE `student_grades`
   ADD CONSTRAINT `student_grades_ibfk_1` FOREIGN KEY (`subject_level_id`) REFERENCES `subject_levels` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `student_grades_ibfk_2` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `student_grade_strands`
+--
+ALTER TABLE `student_grade_strands`
+  ADD CONSTRAINT `student_grade_strands_ibfk_1` FOREIGN KEY (`student_grade_id`) REFERENCES `student_grades` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `student_grade_strands_ibfk_2` FOREIGN KEY (`strand_id`) REFERENCES `strands` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `student_profiles`

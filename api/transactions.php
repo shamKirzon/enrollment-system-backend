@@ -11,6 +11,30 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $page = isset($_GET['page']) ? $_GET['page'] : 1;
     $limit = isset($_GET['limit']) ? $_GET['limit'] : 10;
     $offset = ($page - 1) * $limit;
+    $student_id = $_GET['student_id'];
+
+    if(isset($student_id)) {
+      try {
+        $transactions = get_transactions($pdo, $student_id);
+
+        if($transactions === false) {
+          throw new PDOException("Failed to fetch transactions.", 500);
+        }
+
+        echo json_encode([
+            'message' => "Successfully fetched transactions.",
+            'data' => [
+                'transactions' => $transactions,
+            ]
+        ]);
+
+      } catch (\Throwable $th) {
+        http_response_code($th->getCode());
+        echo json_encode(['message' => $th->getMessage()]);
+      }
+
+      exit;
+    }
 
     $pdo->beginTransaction(); 
 
@@ -118,5 +142,29 @@ switch ($_SERVER['REQUEST_METHOD']) {
     http_response_code(405); // Method Not Allowed
     echo json_encode(['message' => "Unsupported request method."]);
     break;
+}
+
+function get_transactions(PDO $pdo, string $student_id) {
+  $server_url = get_server_url();
+
+  $sql = "
+    SELECT 
+      t.id AS transaction_id, 
+      t.created_at, 
+      t.transaction_number, 
+      t.payment_amount, 
+      t.payment_method,
+      CONCAT('$server_url', t.payment_receipt_url) AS payment_receipt_url, 
+      t.payment_mode_id,
+      pm.payment_channel
+    FROM transactions t
+    JOIN payment_modes pm ON pm.id = t.payment_mode_id
+  ";
+
+  $stmt = $pdo->prepare($sql);
+  $stmt->execute();
+  $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $transactions;
 }
 ?>

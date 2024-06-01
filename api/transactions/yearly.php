@@ -16,7 +16,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
           ay.end_at AS academic_year_end_at
         FROM academic_years ay
         LEFT JOIN enrollments e ON e.academic_year_id = ay.id
-        LEFT JOIN transactions t ON t.id = e.transaction_id
+        LEFT JOIN enrollment_transactions et ON et.enrollment_id = e.id
+        LEFT JOIN transactions t ON t.id = et.transaction_id
         GROUP BY ay.id
         ORDER BY ay.start_at
         "

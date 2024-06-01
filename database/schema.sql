@@ -236,9 +236,11 @@ CREATE TABLE IF NOT EXISTS transactions (
   payment_method ENUM('cash', 'installment') NOT NULL,
   payment_receipt_url TEXT NOT NULL,
 
-  payment_mode_id VARCHAR(50) NOT NULL,
+payment_mode_id VARCHAR(50) NOT NULL,
+enrollment_id CHAR(36) NOT NULL,
 
-  FOREIGN KEY (payment_mode_id) REFERENCES payment_modes(id) ON DELETE CASCADE
+  FOREIGN KEY (payment_mode_id) REFERENCES payment_modes(id) ON DELETE CASCADE,
+  FOREIGN KEY (enrollment_id) REFERENCES enrollments(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -320,6 +322,16 @@ CREATE TABLE IF NOT EXISTS enrollments (
   FOREIGN KEY (year_level_id) REFERENCES year_levels(id) ON DELETE CASCADE,
   FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE CASCADE
 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS enrollment_transactions (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+
+  enrollment_id CHAR(36) NOT NULL,
+  transaction_id CHAR(36) NOT NULL,
+
+  FOREIGN KEY (enrollment_id) REFERENCES enrollments(id) ON DELETE CASCADE,
+  FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Only for SHS students

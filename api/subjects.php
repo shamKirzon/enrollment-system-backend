@@ -23,7 +23,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
       $count_stmt->execute();
       $count = $count_stmt->fetchColumn();
 
-      if (!$count) {
+      if ($count === false) {
         $pdo->rollBack(); 
         throw new Exception("No subjects found.", 404);
       }
@@ -36,16 +36,17 @@ switch ($_SERVER['REQUEST_METHOD']) {
       $sql = "
         SELECT s.*,
           (SELECT COUNT(*) FROM subject_levels WHERE subject_id = s.id) AS year_level_count
-        FROM subjects s;
+        FROM subjects s
+        LIMIT $limit OFFSET $offset
       ";
 
       $stmt = $pdo->prepare($sql);
       $stmt->execute($params);
       $subjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-      if(!$subjects) {
+      if($subjects === false) {
         $pdo->rollBack(); 
-        throw new Exception("Failed to fetch subjects.", 400);
+        throw new PDOException("Failed to fetch subjects.", 400);
       }
 
       $pdo->commit(); 
