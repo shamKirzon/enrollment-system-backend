@@ -13,6 +13,31 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $query = isset($_GET['q']) ? $_GET['q'] : null;
     $offset = ($page - 1) * $limit;
 
+    $user_id = $_GET['id'];
+
+    if ($user_id !== null) {
+      try {
+        $user = get_user($pdo, $user_id);
+
+        if($user === false) {
+          throw new PDOException("Failed to fetch user.", 500);
+        }
+
+        echo json_encode([
+            'message' => "Successfully fetched user.",
+            'data' => [
+                'user' => $user,
+            ]
+        ]);
+
+      } catch (\Throwable $th) {
+        http_response_code($th->getCode());
+        echo json_encode(['message' => $th->getMessage()]);
+      }
+
+      exit;
+    }
+
     try {
         $pdo->beginTransaction();
 
@@ -210,6 +235,20 @@ switch ($_SERVER['REQUEST_METHOD']) {
     http_response_code(405); // Method Not Allowed
     echo json_encode(['message' => "Unsupported request method."]);
   break;
+}
+
+function get_user(PDO $pdo, string $user_id) {
+  $sql = "
+    SELECT id, created_at, first_name, middle_name, last_name, suffix_name, email, contact_number, role, avatar_url
+    FROM users
+    WHERE id = ?
+  ";
+
+  $stmt = $pdo->prepare($sql);
+  $stmt->execute([$user_id]);
+  $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $user;
 }
 
 ?>

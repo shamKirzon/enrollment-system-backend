@@ -7,6 +7,31 @@ header('Content-Type: application/json');
 
 switch ($_SERVER['REQUEST_METHOD']) {
   case 'GET':
+    $student_id = $_GET['student_id'];
+
+    if(isset($student_id)) {
+      try {
+        $student_family_members = get_family_members($pdo, $student_id);
+
+        if($student_family_members === false) {
+          throw new PDOException("Failed to fetch student family members.", 500);
+        }
+
+        echo json_encode([
+            'message' => "Successfully fetched student family members.",
+            'data' => [
+                'student_family_members' => $student_family_members,
+            ]
+        ]);
+
+      } catch (\Throwable $th) {
+        http_response_code($th->getCode());
+        echo json_encode(['message' => $th->getMessage()]);
+      }
+
+      exit;
+    }
+
     try {
       $stmt = $pdo->prepare(
         "
@@ -71,5 +96,35 @@ switch ($_SERVER['REQUEST_METHOD']) {
     http_response_code(405); // Method Not Allowed
     echo json_encode(['message' => "Unsupported request method."]);
     break;
+}
+
+function get_family_members(PDO $pdo, string $student_id) {
+  $sql = "
+  SELECT sfm.id AS student_family_member_id,
+    sfm.first_name,
+    sfm.middle_name,
+    sfm.last_name,
+    sfm.suffix_name,
+    sfm.relationship,
+    sfm.occupation,
+    sfm.address_id,
+
+    a.country,
+    a.region,
+    a.province,
+    a.city,
+    a.barangay,
+    a.street
+
+    FROM student_family_members sfm
+    JOIN addresses a
+    WHERE student_id = ?
+  ";
+
+  $stmt = $pdo->prepare($sql);
+  $stmt->execute([$student_id]);
+  $student_family_members = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $student_family_members;
 }
 ?>

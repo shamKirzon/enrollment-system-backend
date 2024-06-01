@@ -7,6 +7,31 @@ header('Content-Type: application/json');
 
 switch ($_SERVER['REQUEST_METHOD']) {
   case 'GET':
+    $student_id = $_GET['student_id'];
+
+    if(isset($student_id)) {
+      try {
+        $student_profile = get_student_profile($pdo, $student_id);
+
+        if($student_profile === false) {
+          throw new PDOException("Failed to fetch student profile.", 500);
+        }
+
+        echo json_encode([
+            'message' => "Successfully fetched student profile.",
+            'data' => [
+                'student_profile' => $student_profile,
+            ]
+        ]);
+
+      } catch (\Throwable $th) {
+        http_response_code($th->getCode());
+        echo json_encode(['message' => $th->getMessage()]);
+      }
+
+      exit;
+    }
+
     try {
       $stmt = $pdo->prepare(
         "
@@ -75,5 +100,38 @@ switch ($_SERVER['REQUEST_METHOD']) {
     http_response_code(405); // Method Not Allowed
     echo json_encode(['message' => "Unsupported request method."]);
     break;
+}
+
+function get_student_profile(PDO $pdo, string $student_id) {
+  $sql = "
+  SELECT 
+  sp.id AS student_profile_id,
+  sp.lrn,
+  sp.birth_date,
+  sp.birth_place,
+  sp.sex,
+  sp.citizenship,
+  sp.religion,
+  sp.parent_contact_number,
+  sp.landline,
+  sp.birth_certificate_url,
+  sp.baptismal_certificate_url,
+  sp.address_id,
+  a.country,
+  a.region,
+  a.province,
+  a.city,
+  a.barangay,
+  a.street
+  FROM student_profiles sp
+  JOIN addresses a ON a.id = sp.address_id
+  WHERE student_id = ?
+  ";
+
+  $stmt = $pdo->prepare($sql);
+  $stmt->execute([$student_id]);
+  $student_profile = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  return $student_profile;
 }
 ?>
