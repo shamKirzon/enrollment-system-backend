@@ -124,7 +124,7 @@ function get_student_profile(PDO $pdo, string $student_id) {
   a.barangay,
   a.street
   FROM student_profiles sp
-  JOIN addresses a ON a.id = sp.address_id
+  LEFT JOIN addresses a ON a.id = sp.address_id
   WHERE student_id = ?
   ";
 

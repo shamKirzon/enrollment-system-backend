@@ -11,11 +11,31 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $page = isset($_GET['page']) ? $_GET['page'] : 1;
     $limit = isset($_GET['limit']) ? $_GET['limit'] : 10;
     $offset = ($page - 1) * $limit;
+    $date_order = isset($_GET['date_order']) ? $_GET['date_order'] : 'asc';
     $student_id = $_GET['student_id'];
+
+    $pdo->beginTransaction(); 
 
     if(isset($student_id)) {
       try {
-        $transactions = get_transactions($pdo, $student_id);
+        $count_sql = "
+          SELECT COUNT(*) AS count
+          FROM transactions t
+          JOIN payment_modes pm ON pm.id = t.payment_mode_id
+          JOIN enrollment_transactions et ON et.transaction_id = t.id
+          JOIN enrollments e ON e.id = et.enrollment_id
+          WHERE e.student_id = ?
+        ";
+
+        $count_stmt = $pdo->prepare($count_sql);
+        $count_stmt->execute([$student_id]);
+        $count = $count_stmt->fetchColumn();
+
+        if ($count === false) {
+          throw new PDOException("Failed to get transactions count.", 404);
+        }
+
+        $transactions = get_transactions($pdo, $student_id, $limit, $offset, $date_order);
 
         if($transactions === false) {
           throw new PDOException("Failed to fetch transactions.", 500);
@@ -24,19 +44,22 @@ switch ($_SERVER['REQUEST_METHOD']) {
         echo json_encode([
             'message' => "Successfully fetched transactions.",
             'data' => [
-                'transactions' => $transactions,
+              'transactions' => $transactions,
+              "count" => $count
             ]
         ]);
 
       } catch (\Throwable $th) {
+        $pdo->rollBack();
         http_response_code($th->getCode());
         echo json_encode(['message' => $th->getMessage()]);
       }
 
+      $pdo->commit(); 
+
       exit;
     }
 
-    $pdo->beginTransaction(); 
 
     $count_sql = "
       SELECT COUNT(*) AS count
@@ -47,7 +70,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $count_stmt->execute();
     $count = $count_stmt->fetchColumn();
 
-    if (!$count) {
+    if ($count === false) {
       $pdo->rollBack(); 
       http_response_code(404);
       echo json_encode(['message' => "No transactions found."]);
@@ -68,9 +91,11 @@ switch ($_SERVER['REQUEST_METHOD']) {
         pm.payment_channel
       FROM transactions t
       JOIN payment_modes pm ON pm.id = t.payment_mode_id
+      JOIN enrollment_transactions et ON et.transaction_id = t.id
+      JOIN enrollments e ON e.id = et.enrollment_id
+      ORDER BY t.created_at $date_order
+      LIMIT $limit OFFSET $offset
     ";
-
-    $sql .= " LIMIT " . $limit . " OFFSET " . $offset;
 
     $transactions = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 
@@ -136,6 +161,30 @@ switch ($_SERVER['REQUEST_METHOD']) {
     break;
 
   case 'DELETE':
+    try {
+      $ids = json_decode(file_get_contents('php://input'), true);
+
+      $sql = "
+        DELETE FROM transactions 
+        WHERE id IN (
+      ";
+
+      if(!empty($ids)) {
+        $placeholders = array_fill(0, count($ids), '?');
+        $sql .= implode(', ', $placeholders);
+      }
+
+      $sql .= ")";
+
+      $stmt = $pdo->prepare($sql);
+      $stmt->execute($ids);
+
+      http_response_code(200); 
+      echo json_encode(['message' => "Successfully deleted transactions."]);
+    } catch (\Throwable $th) {
+      http_response_code($th->getCode());
+      echo json_encode(['message' => $th->getMessage()]);
+    }
     break;
   
   default:
@@ -144,7 +193,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
     break;
 }
 
-function get_transactions(PDO $pdo, string $student_id) {
+function get_transactions(PDO $pdo, string $student_id, int $limit, int $offset, string $order) {
   $server_url = get_server_url();
 
   $sql = "
@@ -158,11 +207,16 @@ function get_transactions(PDO $pdo, string $student_id) {
       t.payment_mode_id,
       pm.payment_channel
     FROM transactions t
-    JOIN payment_modes pm ON pm.id = t.payment_mode_id
+  JOIN payment_modes pm ON pm.id = t.payment_mode_id
+  JOIN enrollment_transactions et ON et.transaction_id = t.id
+  JOIN enrollments e ON e.id = et.enrollment_id
+  WHERE e.student_id = ?
+  ORDER BY t.created_at $order
+  LIMIT $limit OFFSET $offset
   ";
 
   $stmt = $pdo->prepare($sql);
-  $stmt->execute();
+  $stmt->execute([$student_id]);
   $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   return $transactions;

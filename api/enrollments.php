@@ -11,10 +11,13 @@ switch ($_SERVER['REQUEST_METHOD']) {
     try {
       $academic_year_id = isset($_GET['year']) ? $_GET['year'] : null;
       $enrollment_status = isset($_GET['status']) ? $_GET['status'] : null;
-      $year_level_id = isset($_GET['year_level']) ? $_GET['year_level'] : null;
+      $year_level_id = isset($_GET['year_level_id']) ? $_GET['year_level_id'] : null;
       $page = isset($_GET['page']) ? $_GET['page'] : 1;
       $limit = isset($_GET['limit']) ? $_GET['limit'] : 10;
       $offset = ($page - 1) * $limit;
+
+      // Orders
+      $enrolled_at_order = isset($_GET['enrolled_at_order']) ? $_GET['enrolled_at_order'] : 'asc';
 
       $pdo->beginTransaction(); 
 
@@ -127,9 +130,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
       }
 
       $sql .= "
-        ORDER BY e.enrolled_at
+      ORDER BY e.enrolled_at $enrolled_at_order
+      LIMIT $limit OFFSET $offset
       ";
-      $sql .= " LIMIT " . $limit . " OFFSET " . $offset;
 
       $stmt = $pdo->prepare($sql);
       $stmt->execute($params);
