@@ -11,7 +11,7 @@ $id = $_GET['id'];
 
 $stmt = $pdo->prepare(
   "
-  SELECT id, first_name, middle_name, last_name, email, contact_number, role, created_at, updated_at
+  SELECT id, created_at, first_name, middle_name, last_name, suffix_name, email, contact_number, role, avatar_url
   FROM users
   WHERE id = :id
   "

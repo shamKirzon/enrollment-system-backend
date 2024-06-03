@@ -7,26 +7,74 @@ header('Content-Type: application/json');
 
 switch ($_SERVER['REQUEST_METHOD']) {
   case 'GET':
-    $academic_years = $pdo->query(
-      "
-      SELECT ay.*, COUNT(e.id) AS student_count
-      FROM academic_years ay
-      LEFT JOIN enrollments e ON ay.id = e.academic_year_id
-      GROUP BY ay.id, ay.start_at, ay.end_at, ay.status
-      ORDER BY ay.start_at DESC
-      LIMIT 25
-      "
-    )->fetchAll(PDO::FETCH_ASSOC);
+    try {
+      $page = isset($_GET['page']) ? $_GET['page'] : 1;
+      $limit = isset($_GET['limit']) ? $_GET['limit'] : 10;
+      $status = isset($_GET['status']) ? $_GET['status'] : null;
+      // $get_student_count = isset($_GET['get-student-count']) ? $_GET['get-student-count'] : false;
+      $offset = ($page - 1) * $limit;
 
-    if (!$academic_years) {
-      http_response_code(400);
-      echo json_encode(['message' => "Failed to fetch academic years."]);
-      exit;
+      $pdo->beginTransaction(); 
+
+      $count_sql = "
+        SELECT COUNT(*) AS count
+        FROM academic_years
+      ";
+
+      $count_stmt = $pdo->prepare($count_sql);
+      $count_stmt->execute();
+      $count = $count_stmt->fetchColumn();
+
+      if ($count === false) {
+        $pdo->rollBack(); 
+        throw new Exception("No enrollments found.", 404);
+      }
+
+      $conditions = [];
+      $params = [];
+
+      if ($status !== null) {
+        $conditions[] = "ay.status = ?";
+        $params[] = $status;
+      }
+
+      $where_clause = "";
+      if (!empty($conditions)) {
+        $where_clause = " WHERE " . implode(" AND ", $conditions);
+      }
+
+      $sql = "SELECT ay.*, COUNT(e.id) AS student_count
+              FROM academic_years ay
+              LEFT JOIN enrollments e ON ay.id = e.academic_year_id AND e.status = 'done'
+              $where_clause
+              GROUP BY ay.id, ay.start_at, ay.end_at, ay.status
+              ORDER BY ay.start_at DESC
+              LIMIT " . $limit . " OFFSET " . $offset;
+
+      $stmt = $pdo->prepare($sql);
+      $stmt->execute($params);
+      $academic_years = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+      if (!$academic_years) {
+        $pdo->rollBack(); 
+        throw new Exception("Failed to fetch academic years.", 400);
+      }
+
+      $pdo->commit(); 
+
+      http_response_code(200);
+
+      echo json_encode([
+        'message' => "Successfully fetched academic years.",
+        'data' => [
+          'academic_years' => $academic_years,
+          'count' => $count
+        ]
+      ]);
+    } catch (\Throwable $th) {
+      http_response_code($th->getCode());
+      echo json_encode(['message' => $th->getMessage()]);
     }
-
-    http_response_code(200);
-
-    echo json_encode(['message' => "Successfully fetched academic years.", 'data' => ['academic_years' => $academic_years]]);
     break;
 
   case 'POST':
@@ -51,7 +99,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
       exit;
     }
 
-    http_response_code(200); 
+    http_response_code(201); 
     echo json_encode(['message' => "Successfully inserted academic year."]);
     break;
   case 'PATCH':
@@ -86,25 +134,32 @@ switch ($_SERVER['REQUEST_METHOD']) {
     break;
 
   case 'DELETE':
-    $id = $_GET['id'];
+    $ids = json_decode(file_get_contents('php://input'), true);
 
-    $stmt = $pdo->prepare(
-      "
+    $sql = "
       DELETE FROM academic_years 
-      WHERE id = ?
-      "
-    );
+      WHERE id IN (
+    ";
 
-    $exec = $stmt->execute([$id]);
-
-    if(!$exec){
-      http_response_code(500);
-      echo json_encode(['message' => "Failed to delete academic year."]);
-      exit;
+    if(!empty($ids)) {
+      $placeholders = array_fill(0, count($ids), '?');
+      $sql .= implode(', ', $placeholders);
     }
 
-    http_response_code(200); 
-    echo json_encode(['message' => "Successfully deleted academic year."]);
+    $sql .= ")";
+
+    try {
+      $stmt = $pdo->prepare($sql);
+
+      $stmt->execute($ids);
+
+      http_response_code(200); 
+      echo json_encode(['message' => "Successfully deleted academic years."]);
+    } catch (\Throwable $th) {
+      http_response_code($th->getCode());
+      echo json_encode(['message' => "Failed to delete academic years."]);
+    }
+
     break;
   
   default:
