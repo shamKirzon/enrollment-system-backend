@@ -145,18 +145,26 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $password = $json_data['password'];
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
+    $stmt = $pdo->query("SELECT uuid()");
+    $user_id = $stmt->fetchColumn();
+
     try {
       $stmt = $pdo->prepare(
         "
         INSERT INTO users (id, first_name, middle_name, last_name, suffix_name, email, contact_number, role, avatar_url, password)
-        VALUES (uuid(), ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         "
       );
 
-      $stmt->execute([$first_name, $middle_name, $last_name, $suffix_name, $email, $contact_number, $role, $avatar_url, $hashed_password]);
+      $stmt->execute([$user_id, $first_name, $middle_name, $last_name, $suffix_name, $email, $contact_number, $role, $avatar_url, $hashed_password]);
 
       http_response_code(201); 
-      echo json_encode(['message' => "Successfully created user."]);
+      echo json_encode([
+        'message' => "Successfully created user.", 
+        "data" => [
+          "user_id" => $user_id
+        ]
+      ]);
     } catch (\Throwable $th) {
       http_response_code($th->getCode());
       echo json_encode(['message' => "Failed to create user."]);

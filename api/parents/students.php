@@ -31,14 +31,14 @@ switch ($_SERVER['REQUEST_METHOD']) {
       );
 
       $stmt->execute([$parent_id]);
-      $student = $stmt->fetch(PDO::FETCH_ASSOC);
+      $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
       http_response_code(200);
 
       echo json_encode([
-        'message' => "Successfully fetched student.",
+        'message' => "Successfully fetched students.",
         'data' => [
-          'student' => $student,
+          'students' => $students,
         ]
       ]);
     } catch (\Throwable $th) {

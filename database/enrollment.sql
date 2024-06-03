@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jun 01, 2024 at 06:25 AM
+-- Generation Time: Jun 02, 2024 at 01:57 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -78,6 +78,13 @@ CREATE TABLE `enrolled_tuition_plans` (
   `tuition_plan_id` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `enrolled_tuition_plans`
+--
+
+INSERT INTO `enrolled_tuition_plans` (`id`, `enrollment_id`, `tuition_plan_id`) VALUES
+('5f16d579-206e-11ef-901b-00e18ce201d5', '5f11ab49-206e-11ef-901b-00e18ce201d5', 'a-1');
+
 -- --------------------------------------------------------
 
 --
@@ -90,17 +97,16 @@ CREATE TABLE `enrollments` (
   `status` enum('pending','done') NOT NULL DEFAULT 'pending',
   `student_id` char(36) NOT NULL,
   `academic_year_id` int(11) NOT NULL,
-  `year_level_id` varchar(50) NOT NULL,
-  `transaction_id` char(36) NOT NULL
+  `year_level_id` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `enrollments`
 --
 
-INSERT INTO `enrollments` (`id`, `enrolled_at`, `status`, `student_id`, `academic_year_id`, `year_level_id`, `transaction_id`) VALUES
-('002d0b33-1f17-11ef-bf56-00e18ce201d5', '2024-05-31 06:28:31', 'done', 'edcb084a-197b-11ef-a11c-00e18ce201d5', 3, 'g10', '002c6b9f-1f17-11ef-bf56-00e18ce201d5'),
-('800e1e65-1ee0-11ef-bf56-00e18ce201d5', '2024-05-30 23:58:24', 'done', 'edcb084a-197b-11ef-a11c-00e18ce201d5', 4, 'g11', '800d62e9-1ee0-11ef-bf56-00e18ce201d5');
+INSERT INTO `enrollments` (`id`, `enrolled_at`, `status`, `student_id`, `academic_year_id`, `year_level_id`) VALUES
+('2b7e5809-206e-11ef-901b-00e18ce201d5', '2024-06-01 23:25:01', 'done', 'edcb084a-197b-11ef-a11c-00e18ce201d5', 3, 'g10'),
+('5f11ab49-206e-11ef-901b-00e18ce201d5', '2024-06-01 23:26:28', 'done', 'edcb084a-197b-11ef-a11c-00e18ce201d5', 4, 'g11');
 
 -- --------------------------------------------------------
 
@@ -204,7 +210,27 @@ CREATE TABLE `enrollment_strands` (
 --
 
 INSERT INTO `enrollment_strands` (`id`, `enrollment_id`, `strand_id`) VALUES
-('stem-800e1e65-1ee0-11ef-bf56-00e18ce201d5', '800e1e65-1ee0-11ef-bf56-00e18ce201d5', 'stem');
+('stem-5f11ab49-206e-11ef-901b-00e18ce201d5', '5f11ab49-206e-11ef-901b-00e18ce201d5', 'stem');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `enrollment_transactions`
+--
+
+CREATE TABLE `enrollment_transactions` (
+  `id` int(11) NOT NULL,
+  `enrollment_id` char(36) NOT NULL,
+  `transaction_id` char(36) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `enrollment_transactions`
+--
+
+INSERT INTO `enrollment_transactions` (`id`, `enrollment_id`, `transaction_id`) VALUES
+(4, '2b7e5809-206e-11ef-901b-00e18ce201d5', '2b7cd84c-206e-11ef-901b-00e18ce201d5'),
+(5, '5f11ab49-206e-11ef-901b-00e18ce201d5', '5f106fe6-206e-11ef-901b-00e18ce201d5');
 
 -- --------------------------------------------------------
 
@@ -280,7 +306,7 @@ CREATE TABLE `report_cards` (
 --
 
 INSERT INTO `report_cards` (`id`, `report_card_url`, `enrollment_id`) VALUES
-(6, '/storage/report-cards/STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_REPORT-CARD.jpg', '800e1e65-1ee0-11ef-bf56-00e18ce201d5');
+(8, '/storage/report-cards/STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_REPORT-CARD.jpg', '2b7e5809-206e-11ef-901b-00e18ce201d5');
 
 -- --------------------------------------------------------
 
@@ -318,14 +344,6 @@ CREATE TABLE `section_assignments` (
   `enrollment_id` char(36) NOT NULL,
   `section_level_id` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `section_assignments`
---
-
-INSERT INTO `section_assignments` (`id`, `enrollment_id`, `section_level_id`) VALUES
-(1, '800e1e65-1ee0-11ef-bf56-00e18ce201d5', 'agatha-of-sicily-g11'),
-(2, '002d0b33-1f17-11ef-bf56-00e18ce201d5', 'andrew-g10');
 
 -- --------------------------------------------------------
 
@@ -455,17 +473,25 @@ CREATE TABLE `student_grades` (
 
 INSERT INTO `student_grades` (`id`, `grade`, `period`, `subject_level_id`, `student_id`) VALUES
 (5, 95.000, '1', 'STEM-ELEC1-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(6, 94.000, '1', 'CHEM1-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(6, 92.000, '1', 'CHEM1-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
 (7, 96.000, '2', 'CHEM1-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
 (8, 99.000, '2', 'STEM-ELEC1-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
 (9, 99.000, '3', 'STEM-ELEC2-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
 (10, 99.000, '4', 'STEM-ELEC2-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
 (11, 95.000, '3', 'CHEM2-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
 (12, 95.000, '4', 'CHEM2-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(13, 95.000, '1', 'PE-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(14, 92.000, '2', 'PE-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(16, 93.000, '3', 'PE-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(18, 94.000, '4', 'PE-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5');
+(42, 99.000, '1', 'CL-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(43, 98.000, '2', 'CL-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(44, 95.000, '3', 'CL-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(45, 99.000, '4', 'CL-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(46, 95.000, '1', 'PE-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(47, 94.000, '2', 'PE-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(48, 95.000, '3', 'PE-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(49, 96.000, '4', 'PE-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(50, 99.000, '1', 'SOCSTUD-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(51, 94.000, '2', 'SOCSTUD-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(52, 95.000, '3', 'SOCSTUD-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(53, 96.000, '4', 'SOCSTUD-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5');
 
 -- --------------------------------------------------------
 
@@ -681,12 +707,9 @@ CREATE TABLE `transactions` (
 --
 
 INSERT INTO `transactions` (`id`, `created_at`, `transaction_number`, `payment_amount`, `payment_method`, `payment_receipt_url`, `payment_mode_id`) VALUES
-('002c6b9f-1f17-11ef-bf56-00e18ce201d5', '2024-05-31 06:28:31', '111111111', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g10_3.jpg', 'bpi-pateros-catholic-school-12345679'),
-('28872fb8-1d83-11ef-9953-00e18ce201d5', '2024-05-29 06:17:42', '11111111111', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679'),
-('588b8a3f-1ee0-11ef-bf56-00e18ce201d5', '2024-05-30 23:57:17', '1111', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679'),
-('6c6d946c-1d83-11ef-9953-00e18ce201d5', '2024-05-29 06:19:36', '2222222222', 41000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
-('800d62e9-1ee0-11ef-bf56-00e18ce201d5', '2024-05-30 23:58:24', '11111', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679'),
-('a3041691-1edf-11ef-bf56-00e18ce201d5', '2024-05-30 23:52:13', '1111', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679');
+('2b7cd84c-206e-11ef-901b-00e18ce201d5', '2024-06-01 23:25:01', '111', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g10_3.jpg', 'bpi-pateros-catholic-school-12345679'),
+('5f106fe6-206e-11ef-901b-00e18ce201d5', '2024-06-01 23:26:28', '222', 20000.00, 'installment', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679'),
+('9c23f7a2-200c-11ef-86f8-00e18ce201d5', '2024-06-01 11:46:40', '222', 41000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679');
 
 -- --------------------------------------------------------
 
@@ -762,7 +785,7 @@ INSERT INTO `users` (`id`, `created_at`, `first_name`, `middle_name`, `last_name
 ('66b1695a-1bb6-11ef-8090-00e18ce201d5', '2024-05-26 23:19:29', 'Samantha Althea', 'Perlas', 'Oris', NULL, 'samantha@gmail.com', '0123456789', 'student', NULL, '$2y$10$1FxYXz/9laSFZFH57caJzO24h6GP4QESzWUjL7ZYHRfQ7a96bak3i'),
 ('8accfe15-1d6f-11ef-9953-00e18ce201d5', '2024-05-29 03:57:17', 'Rhenz', NULL, 'Ganotice', NULL, 'rhenz@gmail.com', '123', 'parent', NULL, '$2y$10$5LXJYzX6SeS9MIx.gDUjT..ClJNDilw51t/MXQeVURSRNh3TCmkj6'),
 ('b00cf259-197c-11ef-a11c-00e18ce201d5', '2024-05-24 03:21:19', 'Gojo', NULL, 'Satoru', NULL, 'admin@gmail.com', '1234', 'admin', NULL, '$2y$10$u2RssLCI91Oo2f6igDYZveUwS0cYQh63j/sokVpOCkbQSIFxU.gEi'),
-('edcb084a-197b-11ef-a11c-00e18ce201d5', '2024-05-24 03:15:53', 'Lorena', NULL, 'Sanchez', NULL, 'lorena@gmail.com', '1234', 'student', NULL, '$2y$10$O.g10gwAcVFRD.iUXPA7m.A86jdLMhUVjPkKE8XAf4Uk44ZDUZ/aq'),
+('edcb084a-197b-11ef-a11c-00e18ce201d5', '2024-05-24 03:15:53', 'Lorena', NULL, 'Sanchez', NULL, 'lorena@gmail.com', '1234', 'student', 'https://i.pinimg.com/736x/3c/2f/90/3c2f901d02252bca7fc2fabfdfcf896a.jpg', '$2y$10$O.g10gwAcVFRD.iUXPA7m.A86jdLMhUVjPkKE8XAf4Uk44ZDUZ/aq'),
 ('f93a2ed0-19a5-11ef-ac3d-00e18ce201d5', '2024-05-24 08:16:51', 'Aaron', NULL, 'Melendres', NULL, 'aaron@gmail.com', '111', 'parent', NULL, '$2y$10$vGbAlELtlvj2bLhy12tICun/CDXQg/y0pBIOw4GQT2qYUtlZqoT/W');
 
 -- --------------------------------------------------------
@@ -826,7 +849,6 @@ ALTER TABLE `enrolled_tuition_plans`
 --
 ALTER TABLE `enrollments`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `transaction_id` (`transaction_id`),
   ADD KEY `student_id` (`student_id`),
   ADD KEY `academic_year_id` (`academic_year_id`),
   ADD KEY `year_level_id` (`year_level_id`);
@@ -866,6 +888,14 @@ ALTER TABLE `enrollment_strands`
   ADD PRIMARY KEY (`id`),
   ADD KEY `enrollment_id` (`enrollment_id`),
   ADD KEY `strand_id` (`strand_id`);
+
+--
+-- Indexes for table `enrollment_transactions`
+--
+ALTER TABLE `enrollment_transactions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `enrollment_id` (`enrollment_id`),
+  ADD KEY `transaction_id` (`transaction_id`);
 
 --
 -- Indexes for table `parent_student_links`
@@ -1051,10 +1081,16 @@ ALTER TABLE `addresses`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `enrollment_transactions`
+--
+ALTER TABLE `enrollment_transactions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
 -- AUTO_INCREMENT for table `report_cards`
 --
 ALTER TABLE `report_cards`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `section_assignments`
@@ -1072,7 +1108,7 @@ ALTER TABLE `section_assignment_strands`
 -- AUTO_INCREMENT for table `student_grades`
 --
 ALTER TABLE `student_grades`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
 -- AUTO_INCREMENT for table `student_grade_strands`
@@ -1097,8 +1133,7 @@ ALTER TABLE `enrolled_tuition_plans`
 ALTER TABLE `enrollments`
   ADD CONSTRAINT `enrollments_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `enrollments_ibfk_2` FOREIGN KEY (`academic_year_id`) REFERENCES `academic_years` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `enrollments_ibfk_3` FOREIGN KEY (`year_level_id`) REFERENCES `year_levels` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `enrollments_ibfk_4` FOREIGN KEY (`transaction_id`) REFERENCES `transactions` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `enrollments_ibfk_3` FOREIGN KEY (`year_level_id`) REFERENCES `year_levels` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `enrollment_discount_applications`
@@ -1120,6 +1155,13 @@ ALTER TABLE `enrollment_fee_levels`
 ALTER TABLE `enrollment_strands`
   ADD CONSTRAINT `enrollment_strands_ibfk_1` FOREIGN KEY (`enrollment_id`) REFERENCES `enrollments` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `enrollment_strands_ibfk_2` FOREIGN KEY (`strand_id`) REFERENCES `strands` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `enrollment_transactions`
+--
+ALTER TABLE `enrollment_transactions`
+  ADD CONSTRAINT `enrollment_transactions_ibfk_1` FOREIGN KEY (`enrollment_id`) REFERENCES `enrollments` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `enrollment_transactions_ibfk_2` FOREIGN KEY (`transaction_id`) REFERENCES `transactions` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `parent_student_links`
