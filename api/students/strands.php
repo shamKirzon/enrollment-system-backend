@@ -16,8 +16,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
         $stmt = $pdo->prepare("
             SELECT 
-                str.id AS strand_id,
-                str.name AS strand_name
+                str.id,
+                str.name
             FROM 
                 enrollments e
             JOIN 
@@ -42,7 +42,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
             http_response_code(200);
             echo json_encode([
                 'message' => "Successfully fetched student strand.",
-                'data' => $strand
+                    'data' => [
+                    "strand" => $strand
+                ]
             ]);
         } else {
             http_response_code(404);

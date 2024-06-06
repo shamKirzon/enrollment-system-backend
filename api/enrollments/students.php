@@ -110,6 +110,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
       $stmt = $pdo->prepare($sql);
       $stmt->execute([$enrollment_id, $student_id, $academic_year_id, $year_level_id]);
 
+
       http_response_code(201); 
       echo json_encode([
         'message' => "Successfully submitted enrollment.",
@@ -132,4 +133,5 @@ switch ($_SERVER['REQUEST_METHOD']) {
     echo json_encode(['message' => "Unsupported request method."]);
     break;
 }
+
 ?>

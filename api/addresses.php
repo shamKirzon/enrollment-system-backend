@@ -51,8 +51,15 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
       $stmt->execute([$country, $region, $province, $city, $barangay, $street]);
 
+      $address_id = $pdo->lastInsertId();
+
       http_response_code(201); 
-      echo json_encode(['message' => "Successfully created address."]);
+      echo json_encode([
+        'message' => "Successfully created address.",
+        "data" => [
+          "address_id" => $address_id
+        ]
+      ]);
     } catch (\Throwable $th) {
       http_response_code(409);
       echo json_encode(['message' => "Failed to create address."]);

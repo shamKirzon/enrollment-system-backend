@@ -16,43 +16,29 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
         // Prepare the query
         $query = "
-          SELECT 
-            s.name AS subject_name,
-            sl.id AS subject_level_id,
-              sg.id AS student_grade_id,
-              sg.grade,
-              sg.period,
-              AVG(CASE WHEN sg.period IN ('1', '2', '3', '4') THEN sg.grade ELSE NULL END) OVER (PARTITION BY sl.subject_id) AS average_grade,
-              yl.education_level,
-              CASE 
-                  WHEN sg.period IN ('1', '2') THEN '1'
-                  WHEN sg.period IN ('3', '4') THEN '2'
-                  ELSE NULL
-              END AS semester
-          FROM subject_levels sl
-          LEFT JOIN subjects s ON sl.subject_id = s.id
-          LEFT JOIN year_levels yl ON yl.id = sl.year_level_id
-          LEFT JOIN student_grades sg ON sg.subject_level_id = sl.id AND sg.student_id = ?
-          WHERE yl.id = ?";
-
-        // Add semester filtering if provided
-        if ($semester) {
-            $query .= " AND (
-                (sg.period IN ('1', '2') AND '1' = ?) OR
-                (sg.period IN ('3', '4') AND '2' = ?)
-            )";
-        }
+            SELECT 
+                s.name AS subject_name,
+                sl.id AS subject_level_id,
+                sg.id AS student_grade_id,
+                sg.grade,
+                sg.period,
+                AVG(sg.grade) OVER (PARTITION BY sl.subject_id) AS average_grade,
+                yl.education_level,
+                ss.semester
+            FROM subject_levels sl
+            LEFT JOIN subjects s ON sl.subject_id = s.id
+            LEFT JOIN year_levels yl ON yl.id = sl.year_level_id
+            LEFT JOIN student_grades sg ON sg.subject_level_id = sl.id AND sg.student_id = ?
+            LEFT JOIN subject_strands ss ON sl.id = ss.subject_level_id
+            WHERE yl.id = ?
+            AND (? IS NULL OR ss.semester = ?)
+            GROUP BY s.name, sl.id, sg.id, sg.grade, sg.period, yl.education_level, ss.semester";
 
         $query .= " ORDER BY s.name, sg.period;";
 
         // Prepare and execute the query
         $stmt = $pdo->prepare($query);
-
-        if ($semester) {
-            $stmt->execute([$student_id, $year_level_id, $semester, $semester]);
-        } else {
-            $stmt->execute([$student_id, $year_level_id]);
-        }
+        $stmt->execute([$student_id, $year_level_id, $semester, $semester]);
 
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -77,8 +63,10 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     'grades' => [],
                     'average_grade' => $row['average_grade']
                 ];
-                $total_average += $row['average_grade'];
-                $subject_count++;
+                if ($row['average_grade'] !== null) {
+                    $total_average += $row['average_grade'];
+                    $subject_count++;
+                }
             }
 
             if (in_array($row['period'], $all_periods)) {

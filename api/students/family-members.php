@@ -118,7 +118,8 @@ function get_family_members(PDO $pdo, string $student_id) {
 
     FROM student_family_members sfm
     JOIN addresses a
-    WHERE student_id = ?
+  WHERE student_id = ?
+  GROUP BY sfm.id
   ";
 
   $stmt = $pdo->prepare($sql);
