@@ -7,8 +7,8 @@ header('Content-Type: application/json');
 
 switch ($_SERVER['REQUEST_METHOD']) {
   case 'GET':
-    $year_level_id = $_GET['year_level_id'];
-    $academic_year_id = $_GET['academic_year_id'];
+    $year_level_id = $_GET['year_level_id'] ?? null;
+    $academic_year_id = $_GET['academic_year_id'] ?? null;
 
     try {
       $sql = "

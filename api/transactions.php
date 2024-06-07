@@ -12,7 +12,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $limit = isset($_GET['limit']) ? $_GET['limit'] : 10;
     $offset = ($page - 1) * $limit;
     $date_order = isset($_GET['date_order']) ? $_GET['date_order'] : 'asc';
-    $student_id = $_GET['student_id'];
+    $student_id = $_GET['student_id'] ?? null;
 
     $pdo->beginTransaction(); 
 
