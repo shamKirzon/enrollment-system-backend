@@ -25,8 +25,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
     // echo $full_file_url;
     
-    // send_mail($emails['student_email'], $subject, $body, $full_file_url);
-    // send_mail($emails['parent_email'], $subject, $body, $full_file_url);
+    send_mail($emails['student_email'], $subject, $body, $full_file_url);
+    send_mail($emails['parent_email'], $subject, $body, $full_file_url);
 
     http_response_code(200); // Method Not Allowed
     echo json_encode(['message' => "Successfully sent emails."]);

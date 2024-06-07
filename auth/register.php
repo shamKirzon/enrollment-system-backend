@@ -29,14 +29,18 @@ try {
     throw new Exception(400, "You can't register an admin.");
   }
 
+  $stmt = $pdo->query("SELECT uuid()");
+  $uuid = $stmt->fetchColumn();
+
   $stmt = $pdo->prepare(
     "
     INSERT INTO users (id, first_name, middle_name, last_name, suffix_name, email, contact_number, role, password) 
-    VALUES (uuid(), :first_name, :middle_name, :last_name, :suffix_name, :email, :contact_number, :role, :password)
+    VALUES (:id, :first_name, :middle_name, :last_name, :suffix_name, :email, :contact_number, :role, :password)
     "
   );
 
   $user_data = [
+    'id' => $uuid,
     'first_name' => $first_name,
     'middle_name' => $middle_name,
     'last_name' => $last_name,
@@ -50,7 +54,11 @@ try {
   $stmt->execute($user_data);
 
   http_response_code(201);
-  echo json_encode(['message' => "Successfully registered user."]);
+  echo json_encode(['message' => "Successfully registered user.", 
+    "data" => [
+      "user_id" => $uuid
+    ]
+  ]);
 } catch (Throwable $th) {
   http_response_code(409);
   echo json_encode(['message' => "Failed to register user."]);
