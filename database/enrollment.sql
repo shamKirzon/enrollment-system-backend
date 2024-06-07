@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jun 02, 2024 at 01:57 PM
+-- Generation Time: Jun 07, 2024 at 08:37 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -64,7 +64,9 @@ CREATE TABLE `addresses` (
 --
 
 INSERT INTO `addresses` (`id`, `country`, `region`, `province`, `city`, `barangay`, `street`) VALUES
-(1, 'Philippines', 'NCR', 'Province', 'Taguig City', 'East Rembo', NULL);
+(1, 'Philippines', 'NCR', 'Province', 'Taguig City', 'East Rembo', NULL),
+(4, 'Philippines', 'NCR', '4th District', 'Taguig City', 'East Rembo', '111-Z 99th Avenue'),
+(5, 'Philippines', 'NCR', '4th District', 'Taguig City', 'West Rembo', NULL);
 
 -- --------------------------------------------------------
 
@@ -83,7 +85,7 @@ CREATE TABLE `enrolled_tuition_plans` (
 --
 
 INSERT INTO `enrolled_tuition_plans` (`id`, `enrollment_id`, `tuition_plan_id`) VALUES
-('5f16d579-206e-11ef-901b-00e18ce201d5', '5f11ab49-206e-11ef-901b-00e18ce201d5', 'a-1');
+('c507e71e-2403-11ef-90c3-00e18ce201d5', 'c506294f-2403-11ef-90c3-00e18ce201d5', 'a-3');
 
 -- --------------------------------------------------------
 
@@ -106,7 +108,8 @@ CREATE TABLE `enrollments` (
 
 INSERT INTO `enrollments` (`id`, `enrolled_at`, `status`, `student_id`, `academic_year_id`, `year_level_id`) VALUES
 ('2b7e5809-206e-11ef-901b-00e18ce201d5', '2024-06-01 23:25:01', 'done', 'edcb084a-197b-11ef-a11c-00e18ce201d5', 3, 'g10'),
-('5f11ab49-206e-11ef-901b-00e18ce201d5', '2024-06-01 23:26:28', 'done', 'edcb084a-197b-11ef-a11c-00e18ce201d5', 4, 'g11');
+('a62776ad-240b-11ef-90c3-00e18ce201d5', '2024-06-06 13:49:52', 'pending', 'edcb084a-197b-11ef-a11c-00e18ce201d5', 5, 'g12'),
+('c506294f-2403-11ef-90c3-00e18ce201d5', '2024-06-06 12:53:28', 'done', 'edcb084a-197b-11ef-a11c-00e18ce201d5', 4, 'g11');
 
 -- --------------------------------------------------------
 
@@ -210,7 +213,8 @@ CREATE TABLE `enrollment_strands` (
 --
 
 INSERT INTO `enrollment_strands` (`id`, `enrollment_id`, `strand_id`) VALUES
-('stem-5f11ab49-206e-11ef-901b-00e18ce201d5', '5f11ab49-206e-11ef-901b-00e18ce201d5', 'stem');
+('abm-a62776ad-240b-11ef-90c3-00e18ce201d5', 'a62776ad-240b-11ef-90c3-00e18ce201d5', 'abm'),
+('humss-c506294f-2403-11ef-90c3-00e18ce201d5', 'c506294f-2403-11ef-90c3-00e18ce201d5', 'humss');
 
 -- --------------------------------------------------------
 
@@ -230,7 +234,8 @@ CREATE TABLE `enrollment_transactions` (
 
 INSERT INTO `enrollment_transactions` (`id`, `enrollment_id`, `transaction_id`) VALUES
 (4, '2b7e5809-206e-11ef-901b-00e18ce201d5', '2b7cd84c-206e-11ef-901b-00e18ce201d5'),
-(5, '5f11ab49-206e-11ef-901b-00e18ce201d5', '5f106fe6-206e-11ef-901b-00e18ce201d5');
+(12, 'c506294f-2403-11ef-90c3-00e18ce201d5', 'c50579b8-2403-11ef-90c3-00e18ce201d5'),
+(19, 'a62776ad-240b-11ef-90c3-00e18ce201d5', 'a625cad8-240b-11ef-90c3-00e18ce201d5');
 
 -- --------------------------------------------------------
 
@@ -249,7 +254,9 @@ CREATE TABLE `parent_student_links` (
 --
 
 INSERT INTO `parent_student_links` (`id`, `parent_id`, `student_id`) VALUES
-('19a174dc-19a6-11ef-ac3d-00e18ce201d5', 'f93a2ed0-19a5-11ef-ac3d-00e18ce201d5', 'edcb084a-197b-11ef-a11c-00e18ce201d5');
+('19a174dc-19a6-11ef-ac3d-00e18ce201d5', 'f93a2ed0-19a5-11ef-ac3d-00e18ce201d5', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+('6c4fcc13-2158-11ef-a4a2-0242a5745a66', 'f93a2ed0-19a5-11ef-ac3d-00e18ce201d5', '6c4a7c00-2158-11ef-a4a2-0242a5745a66'),
+('97fd2648-2156-11ef-a4a2-0242a5745a66', 'f93a2ed0-19a5-11ef-ac3d-00e18ce201d5', '57790e94-2156-11ef-a4a2-0242a5745a66');
 
 -- --------------------------------------------------------
 
@@ -472,26 +479,46 @@ CREATE TABLE `student_grades` (
 --
 
 INSERT INTO `student_grades` (`id`, `grade`, `period`, `subject_level_id`, `student_id`) VALUES
-(5, 95.000, '1', 'STEM-ELEC1-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(6, 92.000, '1', 'CHEM1-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(7, 96.000, '2', 'CHEM1-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(8, 99.000, '2', 'STEM-ELEC1-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(9, 99.000, '3', 'STEM-ELEC2-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(10, 99.000, '4', 'STEM-ELEC2-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(11, 95.000, '3', 'CHEM2-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(12, 95.000, '4', 'CHEM2-g11', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(42, 99.000, '1', 'CL-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(43, 98.000, '2', 'CL-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(44, 95.000, '3', 'CL-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(45, 99.000, '4', 'CL-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(46, 95.000, '1', 'PE-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(47, 94.000, '2', 'PE-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(48, 95.000, '3', 'PE-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(49, 96.000, '4', 'PE-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(50, 99.000, '1', 'SOCSTUD-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(51, 94.000, '2', 'SOCSTUD-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(52, 95.000, '3', 'SOCSTUD-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
-(53, 96.000, '4', 'SOCSTUD-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5');
+(71, 85.000, '2', 'FIL-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(72, 89.000, '3', 'FIL-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(73, 89.000, '4', 'FIL-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(74, 97.000, '1', 'MATH-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(75, 99.000, '2', 'MATH-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(76, 99.000, '3', 'MATH-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(77, 98.000, '4', 'MATH-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(78, 94.000, '1', 'MAPEH-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(79, 95.000, '2', 'MAPEH-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(80, 93.000, '3', 'MAPEH-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(81, 95.000, '4', 'MAPEH-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(82, 95.000, '1', 'SCI-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(83, 94.000, '2', 'SCI-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(84, 93.000, '3', 'SCI-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(85, 94.000, '4', 'SCI-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(86, 95.000, '1', 'TLE-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(87, 96.000, '2', 'TLE-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(88, 97.000, '3', 'TLE-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(89, 97.000, '4', 'TLE-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(99, 89.000, '1', 'AP-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(100, 89.000, '2', 'AP-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(101, 89.000, '3', 'AP-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(102, 87.000, '4', 'AP-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(103, 90.000, '1', 'CL-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(104, 92.000, '2', 'CL-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(105, 89.000, '3', 'CL-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(106, 91.000, '4', 'CL-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(107, 93.000, '1', 'ELEC-A-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(108, 97.000, '2', 'ELEC-A-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(109, 95.000, '3', 'ELEC-A-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(110, 95.000, '4', 'ELEC-A-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(111, 97.000, '1', 'ELEC-B-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(112, 97.000, '2', 'ELEC-B-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(113, 98.000, '3', 'ELEC-B-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(114, 95.000, '4', 'ELEC-B-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(115, 92.000, '1', 'ENG-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(116, 91.000, '2', 'ENG-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(117, 95.000, '3', 'ENG-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(118, 94.000, '4', 'ENG-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+(119, 94.000, '1', 'FIL-g10', 'edcb084a-197b-11ef-a11c-00e18ce201d5');
 
 -- --------------------------------------------------------
 
@@ -504,20 +531,6 @@ CREATE TABLE `student_grade_strands` (
   `student_grade_id` int(11) NOT NULL,
   `strand_id` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `student_grade_strands`
---
-
-INSERT INTO `student_grade_strands` (`id`, `student_grade_id`, `strand_id`) VALUES
-(1, 5, 'stem'),
-(2, 6, 'stem'),
-(3, 7, 'stem'),
-(4, 8, 'stem'),
-(5, 9, 'stem'),
-(6, 10, 'stem'),
-(7, 11, 'stem'),
-(8, 12, 'stem');
 
 -- --------------------------------------------------------
 
@@ -546,7 +559,9 @@ CREATE TABLE `student_profiles` (
 --
 
 INSERT INTO `student_profiles` (`id`, `lrn`, `birth_date`, `birth_place`, `sex`, `citizenship`, `religion`, `parent_contact_number`, `landline`, `birth_certificate_url`, `baptismal_certificate_url`, `address_id`, `student_id`) VALUES
-('3e4a8a7c-199d-11ef-ac3d-00e18ce201d5', '123456654321', '2005-03-27', 'Makati City', 'female', 'Filipino', 'Roman Catholic', '111', '222', 'https://www.j-14.com/wp-content/uploads/2023/07/newjeans-hanni.-.jpg?resize=1200%2C630&quality=86&strip=all', 'https://upload.wikimedia.org/wikipedia/commons/6/6a/20230921_Newjeans_Hanni_%ED%8B%B0%EB%B9%84%ED%85%90_01.jpg', 1, 'edcb084a-197b-11ef-a11c-00e18ce201d5');
+('3e4a8a7c-199d-11ef-ac3d-00e18ce201d5', '123456654321', '2005-03-27', 'Makati City', 'female', 'Filipino', 'Roman Catholic', '111', '222', 'https://www.j-14.com/wp-content/uploads/2023/07/newjeans-hanni.-.jpg?resize=1200%2C630&quality=86&strip=all', 'https://upload.wikimedia.org/wikipedia/commons/6/6a/20230921_Newjeans_Hanni_%ED%8B%B0%EB%B9%84%ED%85%90_01.jpg', 1, 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+('577c6be0-2156-11ef-a4a2-0242a5745a66', '407299111111', '2024-06-01', 'House ni Shammy', 'male', 'Filipino', 'Roman Catholic', '911', '911', '/storage/birth-certificates/STUDENT_57790e94-2156-11ef-a4a2-0242a5745a66_BIRTH-CERTIFICATE.jpg', '/storage/baptismal-certificates/STUDENT_57790e94-2156-11ef-a4a2-0242a5745a66_BAPTISMAL-CERTIFICATE.jpg', 4, '57790e94-2156-11ef-a4a2-0242a5745a66'),
+('6c4e49c2-2158-11ef-a4a2-0242a5745a66', '407299999999', '2024-05-01', 'Tokyo, Japan', 'male', 'Filipino', 'Roman Catholic', '222', '222', '/storage/birth-certificates/STUDENT_6c4a7c00-2158-11ef-a4a2-0242a5745a66_BIRTH-CERTIFICATE.jpg', '/storage/baptismal-certificates/STUDENT_6c4a7c00-2158-11ef-a4a2-0242a5745a66_BAPTISMAL-CERTIFICATE.jpg', 5, '6c4a7c00-2158-11ef-a4a2-0242a5745a66');
 
 -- --------------------------------------------------------
 
@@ -564,17 +579,43 @@ CREATE TABLE `subjects` (
 --
 
 INSERT INTO `subjects` (`id`, `name`) VALUES
-('CHEM1', 'Chemistry 1'),
-('CHEM2', 'Chemistry 2'),
+('AP', 'Araling Panlipunan'),
+('BASICCAL', 'Basic Calculus'),
+('CAPSTONE', 'Capstone Project'),
 ('CL', 'Christian Living'),
-('PE', 'Physical Education'),
+('CL-SHS', 'Christian Living'),
+('DRRR', 'Disaster Readiness & Risk Reduction'),
+('EAPP', 'English for Academic and Professional Purposes'),
+('ELEC-A', 'Elective A'),
+('ELEC-B', 'Elective B'),
+('ENG', 'English'),
+('ENTREP', 'Entrepreneurship'),
+('FIL', 'Filipino'),
+('GENBIO', 'General Biology'),
+('GENCHEM1', 'General Chemistry'),
+('GENCHEM2', 'General Chemistry'),
+('GENMATH', 'General Mathematics'),
+('GENPHYSICS', 'General Physics'),
+('INTROPHILO', 'Introduction to Philosophy of Human Person'),
+('KOMPAN', 'Komunikasyon at Pananaliksik'),
+('LITPHIL', '21st Century Literature from the Philippines'),
+('MAPEH', 'Music, Arts, P.E., & Health'),
+('MATH', 'Mathematics'),
+('ORALCOM', 'Oral Communication in Context'),
+('PAGSULAT', 'Pagsulat sa Filipino sa Piling Larangan'),
+('PEH', 'Physical Education and Health'),
+('PERDEV', 'Personal Development'),
 ('PHILO', 'Philosophy'),
-('SOCSTUD', 'Social Studies'),
-('STEM-ELEC1', 'STEM Elective 1'),
-('STEM-ELEC2', 'STEM Elective 2'),
+('PRECAL', 'Pre-Calculus'),
+('RW', 'Reading and Writing Skills'),
+('SCI', 'Science'),
+('STAT', 'Statistics and Probability'),
+('STEM-ELEC', 'STEM Elective'),
 ('TEST-AGAIN', 'Test Again'),
 ('TEST-SHS', 'Test SHS'),
-('TSET', 'Test');
+('TLE', 'Technological Livelihood Education'),
+('TSET', 'Test'),
+('UCSP', 'Understanding Culture, Society, and Politics');
 
 -- --------------------------------------------------------
 
@@ -593,8 +634,18 @@ CREATE TABLE `subject_levels` (
 --
 
 INSERT INTO `subject_levels` (`id`, `subject_id`, `year_level_id`) VALUES
-('CHEM1-g11', 'CHEM1', 'g11'),
-('CHEM2-g11', 'CHEM2', 'g11'),
+('AP-g1', 'AP', 'g1'),
+('AP-g10', 'AP', 'g10'),
+('AP-g2', 'AP', 'g2'),
+('AP-g3', 'AP', 'g3'),
+('AP-g4', 'AP', 'g4'),
+('AP-g5', 'AP', 'g5'),
+('AP-g6', 'AP', 'g6'),
+('AP-g7', 'AP', 'g7'),
+('AP-g8', 'AP', 'g8'),
+('AP-g9', 'AP', 'g9'),
+('BASICCAL-g11', 'BASICCAL', 'g11'),
+('CAPSTONE-g12', 'CAPSTONE', 'g12'),
 ('CL-g1', 'CL', 'g1'),
 ('CL-g10', 'CL', 'g10'),
 ('CL-g2', 'CL', 'g2'),
@@ -605,30 +656,105 @@ INSERT INTO `subject_levels` (`id`, `subject_id`, `year_level_id`) VALUES
 ('CL-g7', 'CL', 'g7'),
 ('CL-g8', 'CL', 'g8'),
 ('CL-g9', 'CL', 'g9'),
-('PE-g1', 'PE', 'g1'),
-('PE-g10', 'PE', 'g10'),
-('PE-g2', 'PE', 'g2'),
-('PE-g3', 'PE', 'g3'),
-('PE-g4', 'PE', 'g4'),
-('PE-g5', 'PE', 'g5'),
-('PE-g6', 'PE', 'g6'),
-('PE-g7', 'PE', 'g7'),
-('PE-g8', 'PE', 'g8'),
-('PE-g9', 'PE', 'g9'),
+('CL-SHS-g11', 'CL-SHS', 'g11'),
+('CL-SHS-g12', 'CL-SHS', 'g12'),
+('DRRR-g11', 'DRRR', 'g11'),
+('EAPP-g12', 'EAPP', 'g12'),
+('ELEC-A-g10', 'ELEC-A', 'g10'),
+('ELEC-A-g7', 'ELEC-A', 'g7'),
+('ELEC-A-g8', 'ELEC-A', 'g8'),
+('ELEC-A-g9', 'ELEC-A', 'g9'),
+('ELEC-B-g10', 'ELEC-B', 'g10'),
+('ELEC-B-g7', 'ELEC-B', 'g7'),
+('ELEC-B-g8', 'ELEC-B', 'g8'),
+('ELEC-B-g9', 'ELEC-B', 'g9'),
+('ENG-g1', 'ENG', 'g1'),
+('ENG-g10', 'ENG', 'g10'),
+('ENG-g2', 'ENG', 'g2'),
+('ENG-g3', 'ENG', 'g3'),
+('ENG-g4', 'ENG', 'g4'),
+('ENG-g5', 'ENG', 'g5'),
+('ENG-g6', 'ENG', 'g6'),
+('ENG-g7', 'ENG', 'g7'),
+('ENG-g8', 'ENG', 'g8'),
+('ENG-g9', 'ENG', 'g9'),
+('ENTREP-g12', 'ENTREP', 'g12'),
+('FIL-g1', 'FIL', 'g1'),
+('FIL-g10', 'FIL', 'g10'),
+('FIL-g2', 'FIL', 'g2'),
+('FIL-g3', 'FIL', 'g3'),
+('FIL-g4', 'FIL', 'g4'),
+('FIL-g5', 'FIL', 'g5'),
+('FIL-g6', 'FIL', 'g6'),
+('FIL-g7', 'FIL', 'g7'),
+('FIL-g8', 'FIL', 'g8'),
+('FIL-g9', 'FIL', 'g9'),
+('GENBIO-g12', 'GENBIO', 'g12'),
+('GENCHEM1-g11', 'GENCHEM1', 'g11'),
+('GENCHEM2-g12', 'GENCHEM2', 'g12'),
+('GENMATH-g11', 'GENMATH', 'g11'),
+('GENPHYSICS-g12', 'GENPHYSICS', 'g12'),
+('INTROPHILO-g11', 'INTROPHILO', 'g11'),
+('KOMPAN-g11', 'KOMPAN', 'g11'),
+('LITPHIL-g12', 'LITPHIL', 'g12'),
+('MAPEH-g1', 'MAPEH', 'g1'),
+('MAPEH-g10', 'MAPEH', 'g10'),
+('MAPEH-g2', 'MAPEH', 'g2'),
+('MAPEH-g3', 'MAPEH', 'g3'),
+('MAPEH-g4', 'MAPEH', 'g4'),
+('MAPEH-g5', 'MAPEH', 'g5'),
+('MAPEH-g6', 'MAPEH', 'g6'),
+('MAPEH-g7', 'MAPEH', 'g7'),
+('MAPEH-g8', 'MAPEH', 'g8'),
+('MAPEH-g9', 'MAPEH', 'g9'),
+('MATH-g1', 'MATH', 'g1'),
+('MATH-g10', 'MATH', 'g10'),
+('MATH-g2', 'MATH', 'g2'),
+('MATH-g3', 'MATH', 'g3'),
+('MATH-g4', 'MATH', 'g4'),
+('MATH-g5', 'MATH', 'g5'),
+('MATH-g6', 'MATH', 'g6'),
+('MATH-g7', 'MATH', 'g7'),
+('MATH-g8', 'MATH', 'g8'),
+('MATH-g9', 'MATH', 'g9'),
+('ORALCOM-g11', 'ORALCOM', 'g11'),
+('PAGSULAT-g12', 'PAGSULAT', 'g12'),
+('PEH-g12', 'PEH', 'g12'),
+('PERDEV-g11', 'PERDEV', 'g11'),
 ('PHILO-g11', 'PHILO', 'g11'),
-('SOCSTUD-g10', 'SOCSTUD', 'g10'),
-('SOCSTUD-g7', 'SOCSTUD', 'g7'),
-('SOCSTUD-g8', 'SOCSTUD', 'g8'),
-('SOCSTUD-g9', 'SOCSTUD', 'g9'),
-('STEM-ELEC1-g11', 'STEM-ELEC1', 'g11'),
-('STEM-ELEC2-g11', 'STEM-ELEC2', 'g11'),
+('PRECAL-g11', 'PRECAL', 'g11'),
+('RW-g11', 'RW', 'g11'),
+('SCI-g1', 'SCI', 'g1'),
+('SCI-g10', 'SCI', 'g10'),
+('SCI-g2', 'SCI', 'g2'),
+('SCI-g3', 'SCI', 'g3'),
+('SCI-g4', 'SCI', 'g4'),
+('SCI-g5', 'SCI', 'g5'),
+('SCI-g6', 'SCI', 'g6'),
+('SCI-g7', 'SCI', 'g7'),
+('SCI-g8', 'SCI', 'g8'),
+('SCI-g9', 'SCI', 'g9'),
+('STAT-g11', 'STAT', 'g11'),
+('STEM-ELEC-g11', 'STEM-ELEC', 'g11'),
+('STEM-ELEC-g12', 'STEM-ELEC', 'g12'),
 ('TEST-AGAIN-g1', 'TEST-AGAIN', 'g1'),
 ('TEST-AGAIN-g2', 'TEST-AGAIN', 'g2'),
 ('TEST-AGAIN-g3', 'TEST-AGAIN', 'g3'),
 ('TEST-AGAIN-g4', 'TEST-AGAIN', 'g4'),
 ('TEST-AGAIN-g5', 'TEST-AGAIN', 'g5'),
 ('TEST-AGAIN-g6', 'TEST-AGAIN', 'g6'),
-('TEST-SHS-g11', 'TEST-SHS', 'g11');
+('TEST-SHS-g11', 'TEST-SHS', 'g11'),
+('TLE-g1', 'TLE', 'g1'),
+('TLE-g10', 'TLE', 'g10'),
+('TLE-g2', 'TLE', 'g2'),
+('TLE-g3', 'TLE', 'g3'),
+('TLE-g4', 'TLE', 'g4'),
+('TLE-g5', 'TLE', 'g5'),
+('TLE-g6', 'TLE', 'g6'),
+('TLE-g7', 'TLE', 'g7'),
+('TLE-g8', 'TLE', 'g8'),
+('TLE-g9', 'TLE', 'g9'),
+('UCSP-g12', 'UCSP', 'g12');
 
 -- --------------------------------------------------------
 
@@ -648,20 +774,145 @@ CREATE TABLE `subject_strands` (
 --
 
 INSERT INTO `subject_strands` (`id`, `subject_level_id`, `strand_id`, `semester`) VALUES
-('CHEM1-g11-abm', 'CHEM1-g11', 'abm', '1'),
-('CHEM1-g11-gas', 'CHEM1-g11', 'gas', '1'),
-('CHEM1-g11-stem', 'CHEM1-g11', 'stem', '1'),
-('CHEM2-g11-stem-2', 'CHEM2-g11', 'stem', '2'),
+('BASICCAL-g11-stem-2', 'BASICCAL-g11', 'stem', '2'),
+('CAPSTONE-g12-abm-2', 'CAPSTONE-g12', 'abm', '2'),
+('CAPSTONE-g12-ad-2', 'CAPSTONE-g12', 'ad', '2'),
+('CAPSTONE-g12-gas-2', 'CAPSTONE-g12', 'gas', '2'),
+('CAPSTONE-g12-humss-2', 'CAPSTONE-g12', 'humss', '2'),
+('CAPSTONE-g12-stem-2', 'CAPSTONE-g12', 'stem', '2'),
+('CAPSTONE-g12-tvl-2', 'CAPSTONE-g12', 'tvl', '2'),
+('CL-SHS-g11-abm-1', 'CL-SHS-g11', 'abm', '1'),
+('CL-SHS-g11-abm-2', 'CL-SHS-g11', 'abm', '2'),
+('CL-SHS-g11-ad-1', 'CL-SHS-g11', 'ad', '1'),
+('CL-SHS-g11-ad-2', 'CL-SHS-g11', 'ad', '2'),
+('CL-SHS-g11-gas-1', 'CL-SHS-g11', 'gas', '1'),
+('CL-SHS-g11-gas-2', 'CL-SHS-g11', 'gas', '2'),
+('CL-SHS-g11-humss-1', 'CL-SHS-g11', 'humss', '1'),
+('CL-SHS-g11-humss-2', 'CL-SHS-g11', 'humss', '2'),
+('CL-SHS-g11-stem-1', 'CL-SHS-g11', 'stem', '1'),
+('CL-SHS-g11-stem-2', 'CL-SHS-g11', 'stem', '2'),
+('CL-SHS-g11-tvl-1', 'CL-SHS-g11', 'tvl', '1'),
+('CL-SHS-g11-tvl-2', 'CL-SHS-g11', 'tvl', '2'),
+('CL-SHS-g12-abm-1', 'CL-SHS-g12', 'abm', '1'),
+('CL-SHS-g12-abm-2', 'CL-SHS-g12', 'abm', '2'),
+('CL-SHS-g12-ad-1', 'CL-SHS-g12', 'ad', '1'),
+('CL-SHS-g12-ad-2', 'CL-SHS-g12', 'ad', '2'),
+('CL-SHS-g12-gas-1', 'CL-SHS-g12', 'gas', '1'),
+('CL-SHS-g12-gas-2', 'CL-SHS-g12', 'gas', '2'),
+('CL-SHS-g12-humss-1', 'CL-SHS-g12', 'humss', '1'),
+('CL-SHS-g12-humss-2', 'CL-SHS-g12', 'humss', '2'),
+('CL-SHS-g12-stem-1', 'CL-SHS-g12', 'stem', '1'),
+('CL-SHS-g12-stem-2', 'CL-SHS-g12', 'stem', '2'),
+('CL-SHS-g12-tvl-1', 'CL-SHS-g12', 'tvl', '1'),
+('CL-SHS-g12-tvl-2', 'CL-SHS-g12', 'tvl', '2'),
+('DRRR-g11-abm-2', 'DRRR-g11', 'abm', '2'),
+('DRRR-g11-ad-2', 'DRRR-g11', 'ad', '2'),
+('DRRR-g11-gas-2', 'DRRR-g11', 'gas', '2'),
+('DRRR-g11-humss-2', 'DRRR-g11', 'humss', '2'),
+('DRRR-g11-stem-2', 'DRRR-g11', 'stem', '2'),
+('DRRR-g11-tvl-2', 'DRRR-g11', 'tvl', '2'),
+('EAPP-g12-abm-1', 'EAPP-g12', 'abm', '1'),
+('EAPP-g12-ad-1', 'EAPP-g12', 'ad', '1'),
+('EAPP-g12-gas-1', 'EAPP-g12', 'gas', '1'),
+('EAPP-g12-humss-1', 'EAPP-g12', 'humss', '1'),
+('EAPP-g12-stem-1', 'EAPP-g12', 'stem', '1'),
+('EAPP-g12-tvl-1', 'EAPP-g12', 'tvl', '1'),
+('ENTREP-g12-abm-2', 'ENTREP-g12', 'abm', '2'),
+('ENTREP-g12-ad-2', 'ENTREP-g12', 'ad', '2'),
+('ENTREP-g12-gas-2', 'ENTREP-g12', 'gas', '2'),
+('ENTREP-g12-humss-2', 'ENTREP-g12', 'humss', '2'),
+('ENTREP-g12-stem-2', 'ENTREP-g12', 'stem', '2'),
+('ENTREP-g12-tvl-2', 'ENTREP-g12', 'tvl', '2'),
+('GENBIO-g12-stem-1', 'GENBIO-g12', 'stem', '1'),
+('GENBIO-g12-stem-2', 'GENBIO-g12', 'stem', '2'),
+('GENCHEM1-g11-stem-2', 'GENCHEM1-g11', 'stem', '2'),
+('GENCHEM2-g12-stem-1', 'GENCHEM2-g12', 'stem', '1'),
+('GENMATH-g11-abm-1', 'GENMATH-g11', 'abm', '1'),
+('GENMATH-g11-ad-1', 'GENMATH-g11', 'ad', '1'),
+('GENMATH-g11-gas-1', 'GENMATH-g11', 'gas', '1'),
+('GENMATH-g11-humss-1', 'GENMATH-g11', 'humss', '1'),
+('GENMATH-g11-stem-1', 'GENMATH-g11', 'stem', '1'),
+('GENMATH-g11-tvl-1', 'GENMATH-g11', 'tvl', '1'),
+('GENPHYSICS-g12-stem-1', 'GENPHYSICS-g12', 'stem', '1'),
+('GENPHYSICS-g12-stem-2', 'GENPHYSICS-g12', 'stem', '2'),
+('INTROPHILO-g11-abm-1', 'INTROPHILO-g11', 'abm', '1'),
+('INTROPHILO-g11-ad-1', 'INTROPHILO-g11', 'ad', '1'),
+('INTROPHILO-g11-gas-1', 'INTROPHILO-g11', 'gas', '1'),
+('INTROPHILO-g11-humss-1', 'INTROPHILO-g11', 'humss', '1'),
+('INTROPHILO-g11-stem-1', 'INTROPHILO-g11', 'stem', '1'),
+('INTROPHILO-g11-tvl-1', 'INTROPHILO-g11', 'tvl', '1'),
+('KOMPAN-g11-abm-1', 'KOMPAN-g11', 'abm', '1'),
+('KOMPAN-g11-ad-1', 'KOMPAN-g11', 'ad', '1'),
+('KOMPAN-g11-gas-1', 'KOMPAN-g11', 'gas', '1'),
+('KOMPAN-g11-humss-1', 'KOMPAN-g11', 'humss', '1'),
+('KOMPAN-g11-stem-1', 'KOMPAN-g11', 'stem', '1'),
+('KOMPAN-g11-tvl-1', 'KOMPAN-g11', 'tvl', '1'),
+('LITPHIL-g12-abm-2', 'LITPHIL-g12', 'abm', '2'),
+('LITPHIL-g12-ad-2', 'LITPHIL-g12', 'ad', '2'),
+('LITPHIL-g12-gas-2', 'LITPHIL-g12', 'gas', '2'),
+('LITPHIL-g12-humss-2', 'LITPHIL-g12', 'humss', '2'),
+('LITPHIL-g12-stem-2', 'LITPHIL-g12', 'stem', '2'),
+('LITPHIL-g12-tvl-2', 'LITPHIL-g12', 'tvl', '2'),
+('ORALCOM-g11-abm-1', 'ORALCOM-g11', 'abm', '1'),
+('ORALCOM-g11-ad-1', 'ORALCOM-g11', 'ad', '1'),
+('ORALCOM-g11-gas-1', 'ORALCOM-g11', 'gas', '1'),
+('ORALCOM-g11-stem-1', 'ORALCOM-g11', 'stem', '1'),
+('ORALCOM-g11-tvl-1', 'ORALCOM-g11', 'tvl', '1'),
+('PAGSULAT-g12-abm-1', 'PAGSULAT-g12', 'abm', '1'),
+('PAGSULAT-g12-ad-1', 'PAGSULAT-g12', 'ad', '1'),
+('PAGSULAT-g12-gas-1', 'PAGSULAT-g12', 'gas', '1'),
+('PAGSULAT-g12-humss-1', 'PAGSULAT-g12', 'humss', '1'),
+('PAGSULAT-g12-stem-1', 'PAGSULAT-g12', 'stem', '1'),
+('PAGSULAT-g12-tvl-1', 'PAGSULAT-g12', 'tvl', '1'),
+('PEH-g12-abm-1', 'PEH-g12', 'abm', '1'),
+('PEH-g12-abm-2', 'PEH-g12', 'abm', '2'),
+('PEH-g12-ad-1', 'PEH-g12', 'ad', '1'),
+('PEH-g12-ad-2', 'PEH-g12', 'ad', '2'),
+('PEH-g12-gas-1', 'PEH-g12', 'gas', '1'),
+('PEH-g12-gas-2', 'PEH-g12', 'gas', '2'),
+('PEH-g12-humss-1', 'PEH-g12', 'humss', '1'),
+('PEH-g12-humss-2', 'PEH-g12', 'humss', '2'),
+('PEH-g12-stem-1', 'PEH-g12', 'stem', '1'),
+('PEH-g12-stem-2', 'PEH-g12', 'stem', '2'),
+('PEH-g12-tvl-1', 'PEH-g12', 'tvl', '1'),
+('PEH-g12-tvl-2', 'PEH-g12', 'tvl', '2'),
+('PERDEV-g11-abm-2', 'PERDEV-g11', 'abm', '2'),
+('PERDEV-g11-ad-2', 'PERDEV-g11', 'ad', '2'),
+('PERDEV-g11-gas-2', 'PERDEV-g11', 'gas', '2'),
+('PERDEV-g11-humss-2', 'PERDEV-g11', 'humss', '2'),
+('PERDEV-g11-stem-2', 'PERDEV-g11', 'stem', '2'),
+('PERDEV-g11-tvl-2', 'PERDEV-g11', 'tvl', '2'),
 ('PHILO-g11-abm-1', 'PHILO-g11', 'abm', '1'),
 ('PHILO-g11-ad-1', 'PHILO-g11', 'ad', '1'),
 ('PHILO-g11-gas-1', 'PHILO-g11', 'gas', '1'),
 ('PHILO-g11-humss-1', 'PHILO-g11', 'humss', '1'),
 ('PHILO-g11-stem-1', 'PHILO-g11', 'stem', '1'),
 ('PHILO-g11-tvl-1', 'PHILO-g11', 'tvl', '1'),
-('STEM-ELEC1-g11-stem-1', 'STEM-ELEC1-g11', 'stem', '1'),
-('STEM-ELEC2-g11-stem-2', 'STEM-ELEC2-g11', 'stem', '2'),
+('PRECAL-g11-stem-1', 'PRECAL-g11', 'stem', '1'),
+('RW-g11-abm-2', 'RW-g11', 'abm', '2'),
+('RW-g11-ad-2', 'RW-g11', 'ad', '2'),
+('RW-g11-gas-2', 'RW-g11', 'gas', '2'),
+('RW-g11-humss-2', 'RW-g11', 'humss', '2'),
+('RW-g11-stem-2', 'RW-g11', 'stem', '2'),
+('RW-g11-tvl-2', 'RW-g11', 'tvl', '2'),
+('STAT-g11-abm-2', 'STAT-g11', 'abm', '2'),
+('STAT-g11-ad-2', 'STAT-g11', 'ad', '2'),
+('STAT-g11-gas-2', 'STAT-g11', 'gas', '2'),
+('STAT-g11-humss-2', 'STAT-g11', 'humss', '2'),
+('STAT-g11-stem-2', 'STAT-g11', 'stem', '2'),
+('STAT-g11-tvl-2', 'STAT-g11', 'tvl', '2'),
+('STEM-ELEC-g11-stem-1', 'STEM-ELEC-g11', 'stem', '1'),
+('STEM-ELEC-g11-stem-2', 'STEM-ELEC-g11', 'stem', '2'),
+('STEM-ELEC-g12-stem-1', 'STEM-ELEC-g12', 'stem', '1'),
+('STEM-ELEC-g12-stem-2', 'STEM-ELEC-g12', 'stem', '2'),
 ('TEST-SHS-g11-gas', 'TEST-SHS-g11', 'gas', '1'),
-('TEST-SHS-g11-stem', 'TEST-SHS-g11', 'stem', '1');
+('TEST-SHS-g11-stem', 'TEST-SHS-g11', 'stem', '1'),
+('UCSP-g12-abm-2', 'UCSP-g12', 'abm', '2'),
+('UCSP-g12-ad-2', 'UCSP-g12', 'ad', '2'),
+('UCSP-g12-gas-2', 'UCSP-g12', 'gas', '2'),
+('UCSP-g12-humss-2', 'UCSP-g12', 'humss', '2'),
+('UCSP-g12-stem-2', 'UCSP-g12', 'stem', '2'),
+('UCSP-g12-tvl-2', 'UCSP-g12', 'tvl', '2');
 
 -- --------------------------------------------------------
 
@@ -707,9 +958,28 @@ CREATE TABLE `transactions` (
 --
 
 INSERT INTO `transactions` (`id`, `created_at`, `transaction_number`, `payment_amount`, `payment_method`, `payment_receipt_url`, `payment_mode_id`) VALUES
+('0990a7c9-2166-11ef-a4a2-0242a5745a66', '2024-06-03 04:59:20', '999', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
+('0ed87f2c-2401-11ef-90c3-00e18ce201d5', '2024-06-06 12:34:03', '4567890', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
+('1a8408d3-2407-11ef-90c3-00e18ce201d5', '2024-06-06 13:17:20', '9999999', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('2b7cd84c-206e-11ef-901b-00e18ce201d5', '2024-06-01 23:25:01', '111', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g10_3.jpg', 'bpi-pateros-catholic-school-12345679'),
+('452eda90-2400-11ef-90c3-00e18ce201d5', '2024-06-06 12:28:25', '55555555555', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
+('4543d674-2402-11ef-90c3-00e18ce201d5', '2024-06-06 12:42:44', '222', 20000.00, 'installment', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679'),
+('58ef093f-2169-11ef-a4a2-0242a5745a66', '2024-06-03 05:23:01', '12121212', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('5f106fe6-206e-11ef-901b-00e18ce201d5', '2024-06-01 23:26:28', '222', 20000.00, 'installment', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679'),
-('9c23f7a2-200c-11ef-86f8-00e18ce201d5', '2024-06-01 11:46:40', '222', 41000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679');
+('5fe29562-2400-11ef-90c3-00e18ce201d5', '2024-06-06 12:29:09', '55555555555', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
+('7dc1d897-2408-11ef-90c3-00e18ce201d5', '2024-06-06 13:27:15', '9999999', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
+('85a6d15f-2402-11ef-90c3-00e18ce201d5', '2024-06-06 12:44:32', '222', 18000.00, 'installment', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679'),
+('9c23f7a2-200c-11ef-86f8-00e18ce201d5', '2024-06-01 11:46:40', '222', 41000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679'),
+('a523682a-2400-11ef-90c3-00e18ce201d5', '2024-06-06 12:31:06', '55555555555', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
+('a625cad8-240b-11ef-90c3-00e18ce201d5', '2024-06-06 13:49:52', '987654321', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
+('c3276506-23fb-11ef-90c3-00e18ce201d5', '2024-06-06 11:56:08', '2222222', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
+('c50579b8-2403-11ef-90c3-00e18ce201d5', '2024-06-06 12:53:28', '7777', 17500.00, 'installment', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679'),
+('c8d9392a-2408-11ef-90c3-00e18ce201d5', '2024-06-06 13:29:21', '34343', 40040.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
+('dd358503-240a-11ef-90c3-00e18ce201d5', '2024-06-06 13:44:15', '1638712312389', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
+('ebb00ca4-23fb-11ef-90c3-00e18ce201d5', '2024-06-06 11:57:16', '2222222', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
+('edaa101e-2406-11ef-90c3-00e18ce201d5', '2024-06-06 13:16:04', '9999999', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
+('f1514dd3-2408-11ef-90c3-00e18ce201d5', '2024-06-06 13:30:29', '99999', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
+('f4648c9b-23fd-11ef-90c3-00e18ce201d5', '2024-06-06 12:11:50', '444444', 41000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679');
 
 -- --------------------------------------------------------
 
@@ -781,12 +1051,14 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `created_at`, `first_name`, `middle_name`, `last_name`, `suffix_name`, `email`, `contact_number`, `role`, `avatar_url`, `password`) VALUES
+('57790e94-2156-11ef-a4a2-0242a5745a66', '2024-06-03 03:06:59', 'Hello', NULL, 'World', NULL, 'hello@gmail.com', '0987654321', 'student', NULL, '$2y$10$TYmDYngzklGkXrGEuEX7D.AP61tFE88TRpsdXXedZP1DOPBfK0f8S'),
 ('66844843-1e12-11ef-9209-00e18ce201d5', '2024-05-29 23:23:04', 'Hanni', NULL, 'My Love', NULL, 'hanni@gmail.com', '143', 'admin', NULL, '$2y$10$d1diUyACOG1Z0dPVR08e1eOzeW9cJVHuoRo8icq7N32SGGR8w0d.6'),
 ('66b1695a-1bb6-11ef-8090-00e18ce201d5', '2024-05-26 23:19:29', 'Samantha Althea', 'Perlas', 'Oris', NULL, 'samantha@gmail.com', '0123456789', 'student', NULL, '$2y$10$1FxYXz/9laSFZFH57caJzO24h6GP4QESzWUjL7ZYHRfQ7a96bak3i'),
+('6c4a7c00-2158-11ef-a4a2-0242a5745a66', '2024-06-03 03:21:52', 'Izuku', NULL, 'Midoriya', NULL, 'deku@gmail.com', '555', 'student', NULL, '$2y$10$5XM9a3VrGECY0BWVvgt2CeRi9j0YbR4pJCCtmmWZaqDxfvM/0VUrC'),
 ('8accfe15-1d6f-11ef-9953-00e18ce201d5', '2024-05-29 03:57:17', 'Rhenz', NULL, 'Ganotice', NULL, 'rhenz@gmail.com', '123', 'parent', NULL, '$2y$10$5LXJYzX6SeS9MIx.gDUjT..ClJNDilw51t/MXQeVURSRNh3TCmkj6'),
 ('b00cf259-197c-11ef-a11c-00e18ce201d5', '2024-05-24 03:21:19', 'Gojo', NULL, 'Satoru', NULL, 'admin@gmail.com', '1234', 'admin', NULL, '$2y$10$u2RssLCI91Oo2f6igDYZveUwS0cYQh63j/sokVpOCkbQSIFxU.gEi'),
-('edcb084a-197b-11ef-a11c-00e18ce201d5', '2024-05-24 03:15:53', 'Lorena', NULL, 'Sanchez', NULL, 'lorena@gmail.com', '1234', 'student', 'https://i.pinimg.com/736x/3c/2f/90/3c2f901d02252bca7fc2fabfdfcf896a.jpg', '$2y$10$O.g10gwAcVFRD.iUXPA7m.A86jdLMhUVjPkKE8XAf4Uk44ZDUZ/aq'),
-('f93a2ed0-19a5-11ef-ac3d-00e18ce201d5', '2024-05-24 08:16:51', 'Aaron', NULL, 'Melendres', NULL, 'aaron@gmail.com', '111', 'parent', NULL, '$2y$10$vGbAlELtlvj2bLhy12tICun/CDXQg/y0pBIOw4GQT2qYUtlZqoT/W');
+('edcb084a-197b-11ef-a11c-00e18ce201d5', '2024-05-24 03:15:53', 'Lorena', NULL, 'Sanchez', NULL, 'giordnnuz27@gmail.com', '1234', 'student', 'https://i.pinimg.com/736x/3c/2f/90/3c2f901d02252bca7fc2fabfdfcf896a.jpg', '$2y$10$O.g10gwAcVFRD.iUXPA7m.A86jdLMhUVjPkKE8XAf4Uk44ZDUZ/aq'),
+('f93a2ed0-19a5-11ef-ac3d-00e18ce201d5', '2024-05-24 08:16:51', 'Aaron', NULL, 'Melendres', NULL, 'giordnnuz.dummy@gmail.com', '111', 'parent', NULL, '$2y$10$vGbAlELtlvj2bLhy12tICun/CDXQg/y0pBIOw4GQT2qYUtlZqoT/W');
 
 -- --------------------------------------------------------
 
@@ -1078,13 +1350,13 @@ ALTER TABLE `academic_years`
 -- AUTO_INCREMENT for table `addresses`
 --
 ALTER TABLE `addresses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `enrollment_transactions`
 --
 ALTER TABLE `enrollment_transactions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `report_cards`
@@ -1108,13 +1380,13 @@ ALTER TABLE `section_assignment_strands`
 -- AUTO_INCREMENT for table `student_grades`
 --
 ALTER TABLE `student_grades`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=120;
 
 --
 -- AUTO_INCREMENT for table `student_grade_strands`
 --
 ALTER TABLE `student_grade_strands`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Constraints for dumped tables
