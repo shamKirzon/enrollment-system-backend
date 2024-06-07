@@ -11,6 +11,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
       $page = isset($_GET['page']) ? $_GET['page'] : 1;
       $limit = isset($_GET['limit']) ? $_GET['limit'] : 10;
       $status = isset($_GET['status']) ? $_GET['status'] : null;
+      $year_order = $_GET['year_order'] ?? 'asc';
       // $get_student_count = isset($_GET['get-student-count']) ? $_GET['get-student-count'] : false;
       $offset = ($page - 1) * $limit;
 
@@ -43,13 +44,15 @@ switch ($_SERVER['REQUEST_METHOD']) {
         $where_clause = " WHERE " . implode(" AND ", $conditions);
       }
 
-      $sql = "SELECT ay.*, COUNT(e.id) AS student_count
-              FROM academic_years ay
-              LEFT JOIN enrollments e ON ay.id = e.academic_year_id AND e.status = 'done'
-              $where_clause
-              GROUP BY ay.id, ay.start_at, ay.end_at, ay.status
-              ORDER BY ay.start_at DESC
-              LIMIT " . $limit . " OFFSET " . $offset;
+      $sql = "
+        SELECT ay.*, COUNT(e.id) AS student_count
+        FROM academic_years ay
+        LEFT JOIN enrollments e ON ay.id = e.academic_year_id AND e.status = 'done'
+        $where_clause
+        GROUP BY ay.id, ay.start_at, ay.end_at, ay.status
+        ORDER BY ay.start_at $year_order
+        LIMIT $limit OFFSET $offset
+      ";
 
       $stmt = $pdo->prepare($sql);
       $stmt->execute($params);
@@ -110,27 +113,26 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $status = $json_data['status'];
     $id = $_GET['id'];
 
-    $stmt = $pdo->prepare(
-      "
+    $sql = "
       UPDATE academic_years
       SET
         start_at = ?,
         end_at = ?,
         status = ?
       WHERE id = ?
-      "
-    );
+    ";
 
-    $exec = $stmt->execute([$start_at, $end_at, $status, $id]);
+    try {
+      $stmt = $pdo->prepare($sql);
+      $stmt->execute([$start_at, $end_at, $status, $id]);
 
-    if(!$exec){
-      http_response_code(500);
+      http_response_code(200); 
+      echo json_encode(['message' => "Successfully updated academic year."]);
+    } catch (\Throwable $th) {
+      http_response_code($th->getCode());
       echo json_encode(['message' => "Failed to update academic year."]);
-      exit;
     }
 
-    http_response_code(200); 
-    echo json_encode(['message' => "Successfully updated academic year."]);
     break;
 
   case 'DELETE':

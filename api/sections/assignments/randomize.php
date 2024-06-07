@@ -9,6 +9,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
   case 'GET':
     $year_level_id = $_GET['year_level_id'] ?? null;
     $academic_year_id = $_GET['academic_year_id'] ?? null;
+    $strand_id = $_GET['strand_id'] ?? null;
 
     try {
       $sql = "
@@ -19,12 +20,16 @@ switch ($_SERVER['REQUEST_METHOD']) {
           u.first_name,
           u.middle_name,
           u.last_name,
-          u.suffix_name
+      u.suffix_name,
+          u.avatar_url
         FROM section_assignments sa
-        JOIN enrollments e
+        JOIN enrollments e ON e.id = sa.enrollment_id
         JOIN section_levels sl ON sl.id = sa.section_level_id
         JOIN sections s ON s.id = sl.section_id
         JOIN users u ON u.id = e.student_id
+        JOIN academic_years ay ON ay.id = e.academic_year_id
+        LEFT JOIN enrollment_strands es ON es.enrollment_id = e.id
+        LEFT JOIN strands str ON str.id = es.strand_id
       ";
 
       $conditions = [];
@@ -38,6 +43,11 @@ switch ($_SERVER['REQUEST_METHOD']) {
       if ($academic_year_id !== null) {
         $conditions[] = "e.academic_year_id = ?";
         $params[] = $academic_year_id;
+      }
+
+      if ($strand_id !== null) {
+        $conditions[] = "str.id = ?";
+        $params[] = $strand_id;
       }
 
       if (!empty($conditions)) {
@@ -110,8 +120,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
     }
     $student_count_per_section = (int) $stmt->fetchColumn();
 
-    if($student_count_per_section < 40) {
-      $student_count_per_section = 50;
+    if($student_count_per_section < 25) {
+      $student_count_per_section = 40;
     }
 
     for ($i=0; $i < count($section_levels); $i++) { 
@@ -170,6 +180,32 @@ switch ($_SERVER['REQUEST_METHOD']) {
     break;
 
   case 'DELETE':
+    $ids = json_decode(file_get_contents('php://input'), true);
+
+    $sql = "
+      DELETE FROM section_assignments
+      WHERE id IN (
+    ";
+
+    if(!empty($ids)) {
+      $placeholders = array_fill(0, count($ids), '?');
+      $sql .= implode(', ', $placeholders);
+    }
+
+    $sql .= ")";
+
+    try {
+      $stmt = $pdo->prepare($sql);
+
+      $stmt->execute($ids);
+
+      http_response_code(200); 
+      echo json_encode(['message' => "Successfully deleted section assignments."]);
+    } catch (\Throwable $th) {
+      http_response_code($th->getCode());
+      echo json_encode(['message' => "Failed to delete section assignments."]);
+    }
+
     break;
 
   default:

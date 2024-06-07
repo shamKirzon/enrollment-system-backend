@@ -13,6 +13,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $offset = ($page - 1) * $limit;
     $date_order = isset($_GET['date_order']) ? $_GET['date_order'] : 'asc';
     $student_id = $_GET['student_id'] ?? null;
+    $parent_id = $_GET['parent_id'] ?? null;
+    $payment_method = $_GET['payment_method'] ?? null;
 
     $pdo->beginTransaction(); 
 
@@ -60,14 +62,55 @@ switch ($_SERVER['REQUEST_METHOD']) {
       exit;
     }
 
+    if(isset($parent_id)) {
+      try {
+        $transactions = get_all_children_transactions($pdo, $parent_id, $limit, $offset, $date_order);
+
+        if($transactions === false) {
+          throw new PDOException("Failed to fetch transactions.", 500);
+        }
+
+        echo json_encode([
+            'message' => "Successfully fetched transactions.",
+            'data' => [
+              'transactions' => $transactions,
+              "count" => $count
+            ]
+        ]);
+      } catch (\Throwable $th) {
+        $pdo->rollBack();
+        http_response_code($th->getCode());
+        echo json_encode(['message' => $th->getMessage()]);
+      }
+      $pdo->commit(); 
+
+      exit;
+    }
+
 
     $count_sql = "
-      SELECT COUNT(*) AS count
-      FROM transactions
+      SELECT COUNT(t.id) AS count
+      FROM transactions t
+      JOIN payment_modes pm ON pm.id = t.payment_mode_id
+      JOIN enrollment_transactions et ON et.transaction_id = t.id
+      JOIN enrollments e ON e.id = et.enrollment_id
     ";
 
+
+    $conditions = array();
+    $params = array();
+
+    if($payment_method !== null) {
+      $conditions[] = "t.payment_method = ?";
+      $params[] = $payment_method;
+    }
+
+    if (!empty($conditions)) {
+      $count_sql .= " WHERE " . implode(" AND ", $conditions) . " ";
+    }
+
     $count_stmt = $pdo->prepare($count_sql);
-    $count_stmt->execute();
+    $count_stmt->execute($params);
     $count = $count_stmt->fetchColumn();
 
     if ($count === false) {
@@ -93,13 +136,22 @@ switch ($_SERVER['REQUEST_METHOD']) {
       JOIN payment_modes pm ON pm.id = t.payment_mode_id
       JOIN enrollment_transactions et ON et.transaction_id = t.id
       JOIN enrollments e ON e.id = et.enrollment_id
-      ORDER BY t.created_at $date_order
-      LIMIT $limit OFFSET $offset
     ";
 
-    $transactions = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+    if (!empty($conditions)) {
+      $sql .= " WHERE " . implode(" AND ", $conditions) . " ";
+    }
 
-    if (!$transactions) {
+    $sql .= "
+      ORDER BY t.created_at $date_order
+      LIMIT $limit OFFSET $offset
+      ";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if ($transactions === false) {
       $pdo->rollBack(); 
       http_response_code(400);
       echo json_encode(['message' => "Failed to fetch payment transactions."]);
@@ -221,4 +273,35 @@ function get_transactions(PDO $pdo, string $student_id, int $limit, int $offset,
 
   return $transactions;
 }
+
+function get_all_children_transactions(PDO $pdo, string $parent_id, int $limit, int $offset, string $order) {
+  $server_url = get_server_url();
+
+  $sql = "
+    SELECT 
+      t.id AS transaction_id, 
+      t.created_at, 
+      t.transaction_number, 
+      t.payment_amount, 
+      t.payment_method,
+      CONCAT('$server_url', t.payment_receipt_url) AS payment_receipt_url, 
+      t.payment_mode_id,
+      pm.payment_channel
+    FROM transactions t
+  JOIN payment_modes pm ON pm.id = t.payment_mode_id
+  JOIN enrollment_transactions et ON et.transaction_id = t.id
+  JOIN enrollments e ON e.id = et.enrollment_id
+  JOIN parent_student_links psl ON psl.student_id = e.student_id
+  WHERE psl.parent_id = ?
+  ORDER BY t.created_at $order
+  LIMIT $limit OFFSET $offset
+  ";
+
+  $stmt = $pdo->prepare($sql);
+  $stmt->execute([$parent_id]);
+  $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $transactions;
+}
+
 ?>
