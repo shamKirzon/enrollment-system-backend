@@ -1,5 +1,6 @@
 <?php
 require_once "../../db.php";
+require_once "../../file-manager.php";
 
 $pdo = getConnection();
 
@@ -103,6 +104,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
 }
 
 function get_student_profile(PDO $pdo, string $student_id) {
+
+      $server_url = get_server_url();
+
   $sql = "
   SELECT 
   sp.id AS student_profile_id,
@@ -114,8 +118,8 @@ function get_student_profile(PDO $pdo, string $student_id) {
   sp.religion,
   sp.parent_contact_number,
   sp.landline,
-  sp.birth_certificate_url,
-  sp.baptismal_certificate_url,
+  CONCAT('$server_url', sp.birth_certificate_url) AS birth_certificate_url,
+  CONCAT('$server_url', sp.baptismal_certificate_url) AS baptismal_certificate_url,
   sp.address_id,
   a.country,
   a.region,

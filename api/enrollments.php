@@ -12,6 +12,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
       $academic_year_id = isset($_GET['academic_year_id']) ? $_GET['academic_year_id'] : null;
       $enrollment_status = isset($_GET['status']) ? $_GET['status'] : null;
       $year_level_id = isset($_GET['year_level_id']) ? $_GET['year_level_id'] : null;
+      $strand_id = $_GET['strand_id'] ?? null;
       $page = isset($_GET['page']) ? $_GET['page'] : 1;
       $limit = isset($_GET['limit']) ? $_GET['limit'] : 10;
       $offset = ($page - 1) * $limit;
@@ -24,32 +25,38 @@ switch ($_SERVER['REQUEST_METHOD']) {
       $countSql = "
         SELECT COUNT(*) AS count
         FROM enrollments e
+        LEFT JOIN enrollment_strands es ON es.enrollment_id = e.id
       ";
 
-      $countConditions = array();
-      $countParams = array();
+      $conditions = array();
+      $params = array();
 
       if ($academic_year_id !== null) {
-        $countConditions[] = "e.academic_year_id = ?";
-        $countParams[] = $academic_year_id;
+        $conditions[] = "e.academic_year_id = ?";
+        $params[] = $academic_year_id;
       }
 
       if ($enrollment_status !== null) {
-        $countConditions[] = "e.status = ?";
-        $countParams[] = $enrollment_status;
+        $conditions[] = "e.status = ?";
+        $params[] = $enrollment_status;
       }
 
       if ($year_level_id !== null) {
-        $countConditions[] = "e.year_level_id = ?";
-        $countParams[] = $year_level_id;
+        $conditions[] = "e.year_level_id = ?";
+        $params[] = $year_level_id;
       }
 
-      if (!empty($countConditions)) {
-        $countSql .= " WHERE " . implode(" AND ", $countConditions) . " ";
+      if($strand_id !== null) {
+        $conditions[] = "es.strand_id = ?";
+        $params[] = $strand_id;
+      }
+
+      if (!empty($conditions)) {
+        $countSql .= " WHERE " . implode(" AND ", $conditions) . " ";
       }
 
       $countStmt = $pdo->prepare($countSql);
-      $countStmt->execute($countParams);
+      $countStmt->execute($params);
       $count = $countStmt->fetchColumn();
 
       if ($count === false) {
@@ -71,6 +78,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
             u.middle_name, 
             u.last_name, 
             u.suffix_name, 
+            u.avatar_url,
             ay.start_at AS academic_year_start_at, 
             ay.end_at AS academic_year_end_at, 
             yl.name AS year_level_name,
@@ -106,24 +114,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
         LEFT JOIN enrollment_strands es ON es.enrollment_id = e.id
         LEFT JOIN strands str ON str.id = es.strand_id
       ";
-
-      $conditions = array();
-      $params = array();
-
-      if ($academic_year_id !== null) {
-          $conditions[] = "e.academic_year_id = ?";
-          $params[] = $academic_year_id;
-      }
-
-      if ($enrollment_status !== null) {
-          $conditions[] = "e.status = ?";
-          $params[] = $enrollment_status;
-      }
-
-      if($year_level_id !== null) {
-          $conditions[] = "e.year_level_id = ?";
-          $params[] = $year_level_id;
-      }
 
       if (!empty($conditions)) {
           $sql .= " WHERE " . implode(" AND ", $conditions) . " ";

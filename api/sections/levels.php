@@ -10,6 +10,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $page = isset($_GET['page']) ? $_GET['page'] : 1;
     $limit = isset($_GET['limit']) ? $_GET['limit'] : 10;
     $offset = ($page - 1) * $limit;
+    $year_level_id = $_GET['year_level_id'] ?? null;
+    $strand_id = $_GET['strand_id'] ?? null;
 
     try {
 
@@ -26,8 +28,25 @@ switch ($_SERVER['REQUEST_METHOD']) {
         LEFT JOIN strands str ON str.id = ss.strand_id
       ";
 
+      $conditions = [];
+      $params = [];
+
+      if($year_level_id !== null) {
+        $conditions[] = "yl.id = ?";
+        $params[] = $year_level_id;
+      }
+
+      if($strand_id !== null) {
+        $conditions[] = "str.id = ?";
+        $params[] = $strand_id;
+      }
+
+      if (!empty($conditions)) {
+        $count_sql .= " WHERE " . implode(" AND ", $conditions);
+      }
+
       $count_stmt = $pdo->prepare($count_sql);
-      $count_stmt->execute();
+      $count_stmt->execute($params);
       $count = $count_stmt->fetchColumn();
 
       if ($count === false) {
@@ -57,12 +76,17 @@ switch ($_SERVER['REQUEST_METHOD']) {
         LEFT JOIN year_levels yl ON yl.id = sl.year_level_id
         LEFT JOIN section_strands ss ON ss.section_level_id = sl.id
         LEFT JOIN strands str ON str.id = ss.strand_id
-        LIMIT $limit OFFSET $offset
       ";
+
+      if (!empty($conditions)) {
+        $sql .= " WHERE " . implode(" AND ", $conditions);
+      }
+
+      $sql .= "LIMIT $limit OFFSET $offset";
 
       $stmt = $pdo->prepare($sql);
 
-      $stmt->execute();
+      $stmt->execute($params);
       $section_levels = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
       http_response_code(200);

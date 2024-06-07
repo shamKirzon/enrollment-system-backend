@@ -7,14 +7,38 @@ header('Content-Type: application/json');
 
 switch ($_SERVER['REQUEST_METHOD']) {
   case 'GET':
-    try {
-      $stmt = $pdo->prepare(
-        "
-        SELECT * FROM enrollment_fee_levels
-        "
-      );
 
-      $stmt->execute();
+    $year_level_id = $_GET['year_level_id'] ?? null;
+
+    try {
+
+      $sql = "
+        SELECT 
+        efl.id AS enrollment_fee_level_id,
+        efl.amount,
+        efl.enrollment_fee_id,
+        efl.year_level_id,
+        yl.name AS year_level_name,
+        ef.name AS enrollment_fee_name
+        FROM enrollment_fee_levels efl
+        JOIN year_levels yl ON yl.id = efl.year_level_id
+        JOIN enrollment_fees ef ON ef.id = efl.enrollment_fee_id
+      ";
+
+      $conditions = [];
+      $params = [];
+
+      if($year_level_id !== null) {
+        $conditions[] = "yl.id = ?";
+        $params[] = $year_level_id;
+      }
+
+      if (!empty($conditions)) {
+          $sql .= " WHERE " . implode(" AND ", $conditions) . " ";
+      }
+
+      $stmt = $pdo->prepare($sql);
+      $stmt->execute($params);
       $enrollment_fee_levels = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
       http_response_code(200);

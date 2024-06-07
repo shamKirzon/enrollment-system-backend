@@ -20,10 +20,11 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $body = $json_data['body'];
 
     // Make sure it comes from the root dir
-    $full_file_url = get_root_dir() . "/" . $file_url;
-
+    $full_file_url = get_root_dir() . $file_url;
     $emails = get_emails($pdo, $user_id);
 
+    // echo $full_file_url;
+    
     send_mail($emails['student_email'], $subject, $body, $full_file_url);
     send_mail($emails['parent_email'], $subject, $body, $full_file_url);
 
