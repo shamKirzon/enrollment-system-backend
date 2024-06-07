@@ -13,7 +13,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
     $query = isset($_GET['q']) ? $_GET['q'] : null;
     $offset = ($page - 1) * $limit;
 
-    $user_id = $_GET['id'];
+    $user_id = $_GET['id'] ?? null;
 
     if ($user_id !== null) {
       try {

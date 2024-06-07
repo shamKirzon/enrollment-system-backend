@@ -9,7 +9,7 @@ header('Content-Type: application/json');
 switch ($_SERVER['REQUEST_METHOD']) {
   case 'GET':
     try {
-      $academic_year_id = isset($_GET['year']) ? $_GET['year'] : null;
+      $academic_year_id = isset($_GET['academic_year_id']) ? $_GET['academic_year_id'] : null;
       $enrollment_status = isset($_GET['status']) ? $_GET['status'] : null;
       $year_level_id = isset($_GET['year_level_id']) ? $_GET['year_level_id'] : null;
       $page = isset($_GET['page']) ? $_GET['page'] : 1;

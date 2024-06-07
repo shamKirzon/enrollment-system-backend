@@ -107,7 +107,8 @@ CREATE TABLE IF NOT EXISTS academic_years (
 
 CREATE TABLE IF NOT EXISTS year_levels (
   id VARCHAR(50) PRIMARY KEY,
-  name VARCHAR(20) NOT NULL
+  name VARCHAR(20) NOT NULL,
+  education_level ENUM('preschool', 'elementary', 'junior-high-school', 'senior-high-school') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Sample year levels to insert
