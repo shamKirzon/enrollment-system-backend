@@ -8,7 +8,7 @@ header('Content-Type: application/json');
 switch ($_SERVER['REQUEST_METHOD']) {
   case 'GET':
     $student_id = $_GET['student_id'];
-    $year_level_id = $_GET['year_level_id'];
+    $year_level_id = $_GET['year_level_id'] ?? null;
     $semester = isset($_GET['semester']) ? $_GET['semester'] : null; // Optional semester
 
     try {

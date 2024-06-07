@@ -14,9 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] != 'POST') {
 $json_data = json_decode(file_get_contents('php://input'), true);
 
 $first_name = $json_data['first_name'];
-$middle_name = $json_data['middle_name'];
+$middle_name = $json_data['middle_name'] ?? null;
 $last_name = $json_data['last_name'];
-$suffix_name = $json_data['suffix_name'];
+$suffix_name = $json_data['suffix_name'] ?? null;
 $email = $json_data['email'];
 $contact_number = $json_data['contact_number'];
 $role = $json_data['role'];
