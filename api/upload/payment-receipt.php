@@ -17,11 +17,11 @@ switch ($_SERVER['REQUEST_METHOD']) {
         throw new Exception("Failed to get image info.", 500);
       }
 
-      $mime_type = $image_info['mime'];
-
       $student_id = $_GET['student_id']; // NOTE: Should be LRN instead
       $academic_year_id = $_GET['academic_year_id'];
       $year_level_id = $_GET['year_level_id'];
+
+      $mime_type = $image_info['mime'];
       $storage_dir = "/storage/payment-receipts";
 
       $payment_receipt_filename =  'PAYMENT-RECEIPT_STUDENT' . '_' . $student_id . '_' . $year_level_id . "_" . $academic_year_id . '.jpg';
