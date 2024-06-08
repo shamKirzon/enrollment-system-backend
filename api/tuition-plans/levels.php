@@ -10,7 +10,11 @@ switch ($_SERVER['REQUEST_METHOD']) {
     try {
       $stmt = $pdo->prepare(
         "
-        SELECT * FROM tuition_plan_levels
+        SELECT tpl.id AS tuition_plan_level_id, tpl.down_payment_amount, tpl.monthly_payment_amount, tpl.tuition_plan_id, tpl.year_level_id,
+        tp.name AS tuition_plan_name, yl.name AS year_level_name
+        FROM tuition_plan_levels tpl
+        JOIN tuition_plans tp ON tp.id = tpl.tuition_plan_id
+        JOIN year_levels yl ON yl.id = tpl.year_level_id
         "
       );
 
