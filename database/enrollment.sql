@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jun 07, 2024 at 08:37 AM
+-- Generation Time: Jun 08, 2024 at 06:34 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -66,7 +66,9 @@ CREATE TABLE `addresses` (
 INSERT INTO `addresses` (`id`, `country`, `region`, `province`, `city`, `barangay`, `street`) VALUES
 (1, 'Philippines', 'NCR', 'Province', 'Taguig City', 'East Rembo', NULL),
 (4, 'Philippines', 'NCR', '4th District', 'Taguig City', 'East Rembo', '111-Z 99th Avenue'),
-(5, 'Philippines', 'NCR', '4th District', 'Taguig City', 'West Rembo', NULL);
+(5, 'Philippines', 'NCR', '4th District', 'Taguig City', 'West Rembo', NULL),
+(6, 'Philippines', 'NCR', '4th District', 'Taguig', 'East Rembo', '121-Z'),
+(7, 'dasadsasd', 'asdasdads', 'adsdas', 'dasdas', 'asdads', NULL);
 
 -- --------------------------------------------------------
 
@@ -79,13 +81,6 @@ CREATE TABLE `enrolled_tuition_plans` (
   `enrollment_id` char(36) NOT NULL,
   `tuition_plan_id` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `enrolled_tuition_plans`
---
-
-INSERT INTO `enrolled_tuition_plans` (`id`, `enrollment_id`, `tuition_plan_id`) VALUES
-('c507e71e-2403-11ef-90c3-00e18ce201d5', 'c506294f-2403-11ef-90c3-00e18ce201d5', 'a-3');
 
 -- --------------------------------------------------------
 
@@ -107,9 +102,8 @@ CREATE TABLE `enrollments` (
 --
 
 INSERT INTO `enrollments` (`id`, `enrolled_at`, `status`, `student_id`, `academic_year_id`, `year_level_id`) VALUES
-('2b7e5809-206e-11ef-901b-00e18ce201d5', '2024-06-01 23:25:01', 'done', 'edcb084a-197b-11ef-a11c-00e18ce201d5', 3, 'g10'),
-('a62776ad-240b-11ef-90c3-00e18ce201d5', '2024-06-06 13:49:52', 'pending', 'edcb084a-197b-11ef-a11c-00e18ce201d5', 5, 'g12'),
-('c506294f-2403-11ef-90c3-00e18ce201d5', '2024-06-06 12:53:28', 'done', 'edcb084a-197b-11ef-a11c-00e18ce201d5', 4, 'g11');
+('4882ccdb-24e9-11ef-9890-00e18ce201d5', '2023-06-07 16:16:23', 'done', 'edcb084a-197b-11ef-a11c-00e18ce201d5', 4, 'g11'),
+('cf3789f0-24a6-11ef-b6e2-00e18ce201d5', '2022-06-07 08:20:33', 'done', 'edcb084a-197b-11ef-a11c-00e18ce201d5', 3, 'g10');
 
 -- --------------------------------------------------------
 
@@ -175,7 +169,7 @@ CREATE TABLE `enrollment_fee_levels` (
 --
 
 INSERT INTO `enrollment_fee_levels` (`id`, `amount`, `enrollment_fee_id`, `year_level_id`) VALUES
-('computer-fee-g10', 1400.00, 'computer-fee', 'g10'),
+('computer-fee-g10', 5000.00, 'computer-fee', 'g10'),
 ('computer-fee-g7', 1200.00, 'computer-fee', 'g7'),
 ('computer-fee-g8', 1300.00, 'computer-fee', 'g8'),
 ('computer-fee-g9', 1300.00, 'computer-fee', 'g9'),
@@ -213,8 +207,7 @@ CREATE TABLE `enrollment_strands` (
 --
 
 INSERT INTO `enrollment_strands` (`id`, `enrollment_id`, `strand_id`) VALUES
-('abm-a62776ad-240b-11ef-90c3-00e18ce201d5', 'a62776ad-240b-11ef-90c3-00e18ce201d5', 'abm'),
-('humss-c506294f-2403-11ef-90c3-00e18ce201d5', 'c506294f-2403-11ef-90c3-00e18ce201d5', 'humss');
+('stem-4882ccdb-24e9-11ef-9890-00e18ce201d5', '4882ccdb-24e9-11ef-9890-00e18ce201d5', 'stem');
 
 -- --------------------------------------------------------
 
@@ -233,9 +226,8 @@ CREATE TABLE `enrollment_transactions` (
 --
 
 INSERT INTO `enrollment_transactions` (`id`, `enrollment_id`, `transaction_id`) VALUES
-(4, '2b7e5809-206e-11ef-901b-00e18ce201d5', '2b7cd84c-206e-11ef-901b-00e18ce201d5'),
-(12, 'c506294f-2403-11ef-90c3-00e18ce201d5', 'c50579b8-2403-11ef-90c3-00e18ce201d5'),
-(19, 'a62776ad-240b-11ef-90c3-00e18ce201d5', 'a625cad8-240b-11ef-90c3-00e18ce201d5');
+(24, 'cf3789f0-24a6-11ef-b6e2-00e18ce201d5', 'cf360d52-24a6-11ef-b6e2-00e18ce201d5'),
+(25, '4882ccdb-24e9-11ef-9890-00e18ce201d5', '48820d6a-24e9-11ef-9890-00e18ce201d5');
 
 -- --------------------------------------------------------
 
@@ -255,6 +247,7 @@ CREATE TABLE `parent_student_links` (
 
 INSERT INTO `parent_student_links` (`id`, `parent_id`, `student_id`) VALUES
 ('19a174dc-19a6-11ef-ac3d-00e18ce201d5', 'f93a2ed0-19a5-11ef-ac3d-00e18ce201d5', 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
+('3244e16c-2516-11ef-9890-00e18ce201d5', 'f93a2ed0-19a5-11ef-ac3d-00e18ce201d5', '3241660d-2516-11ef-9890-00e18ce201d5'),
 ('6c4fcc13-2158-11ef-a4a2-0242a5745a66', 'f93a2ed0-19a5-11ef-ac3d-00e18ce201d5', '6c4a7c00-2158-11ef-a4a2-0242a5745a66'),
 ('97fd2648-2156-11ef-a4a2-0242a5745a66', 'f93a2ed0-19a5-11ef-ac3d-00e18ce201d5', '57790e94-2156-11ef-a4a2-0242a5745a66');
 
@@ -313,7 +306,7 @@ CREATE TABLE `report_cards` (
 --
 
 INSERT INTO `report_cards` (`id`, `report_card_url`, `enrollment_id`) VALUES
-(8, '/storage/report-cards/STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_REPORT-CARD.jpg', '2b7e5809-206e-11ef-901b-00e18ce201d5');
+(10, '/storage/report-cards/STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_REPORT-CARD.jpg', 'cf3789f0-24a6-11ef-b6e2-00e18ce201d5');
 
 -- --------------------------------------------------------
 
@@ -351,6 +344,13 @@ CREATE TABLE `section_assignments` (
   `enrollment_id` char(36) NOT NULL,
   `section_level_id` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `section_assignments`
+--
+
+INSERT INTO `section_assignments` (`id`, `enrollment_id`, `section_level_id`) VALUES
+(5, 'cf3789f0-24a6-11ef-b6e2-00e18ce201d5', 'andrew-g10');
 
 -- --------------------------------------------------------
 
@@ -559,9 +559,11 @@ CREATE TABLE `student_profiles` (
 --
 
 INSERT INTO `student_profiles` (`id`, `lrn`, `birth_date`, `birth_place`, `sex`, `citizenship`, `religion`, `parent_contact_number`, `landline`, `birth_certificate_url`, `baptismal_certificate_url`, `address_id`, `student_id`) VALUES
+('32443d22-2516-11ef-9890-00e18ce201d5', '111111111111', '2024-03-01', 'Taguig City', 'male', 'Filipino', 'Roman Catholic', '190111', '190111', '/storage/birth-certificates/STUDENT_3241660d-2516-11ef-9890-00e18ce201d5_BIRTH-CERTIFICATE.jpg', '/storage/baptismal-certificates/STUDENT_3241660d-2516-11ef-9890-00e18ce201d5_BAPTISMAL-CERTIFICATE.jpg', 6, '3241660d-2516-11ef-9890-00e18ce201d5'),
 ('3e4a8a7c-199d-11ef-ac3d-00e18ce201d5', '123456654321', '2005-03-27', 'Makati City', 'female', 'Filipino', 'Roman Catholic', '111', '222', 'https://www.j-14.com/wp-content/uploads/2023/07/newjeans-hanni.-.jpg?resize=1200%2C630&quality=86&strip=all', 'https://upload.wikimedia.org/wikipedia/commons/6/6a/20230921_Newjeans_Hanni_%ED%8B%B0%EB%B9%84%ED%85%90_01.jpg', 1, 'edcb084a-197b-11ef-a11c-00e18ce201d5'),
 ('577c6be0-2156-11ef-a4a2-0242a5745a66', '407299111111', '2024-06-01', 'House ni Shammy', 'male', 'Filipino', 'Roman Catholic', '911', '911', '/storage/birth-certificates/STUDENT_57790e94-2156-11ef-a4a2-0242a5745a66_BIRTH-CERTIFICATE.jpg', '/storage/baptismal-certificates/STUDENT_57790e94-2156-11ef-a4a2-0242a5745a66_BAPTISMAL-CERTIFICATE.jpg', 4, '57790e94-2156-11ef-a4a2-0242a5745a66'),
-('6c4e49c2-2158-11ef-a4a2-0242a5745a66', '407299999999', '2024-05-01', 'Tokyo, Japan', 'male', 'Filipino', 'Roman Catholic', '222', '222', '/storage/birth-certificates/STUDENT_6c4a7c00-2158-11ef-a4a2-0242a5745a66_BIRTH-CERTIFICATE.jpg', '/storage/baptismal-certificates/STUDENT_6c4a7c00-2158-11ef-a4a2-0242a5745a66_BAPTISMAL-CERTIFICATE.jpg', 5, '6c4a7c00-2158-11ef-a4a2-0242a5745a66');
+('6c4e49c2-2158-11ef-a4a2-0242a5745a66', '407299999999', '2024-05-01', 'Tokyo, Japan', 'male', 'Filipino', 'Roman Catholic', '222', '222', '/storage/birth-certificates/STUDENT_6c4a7c00-2158-11ef-a4a2-0242a5745a66_BIRTH-CERTIFICATE.jpg', '/storage/baptismal-certificates/STUDENT_6c4a7c00-2158-11ef-a4a2-0242a5745a66_BAPTISMAL-CERTIFICATE.jpg', 5, '6c4a7c00-2158-11ef-a4a2-0242a5745a66'),
+('e06c4724-251e-11ef-9890-00e18ce201d5', '43232', '2024-06-08', 'asddas', 'male', 'adsdsa', 'sdadas', '233223', '232332', '/storage/birth-certificates/STUDENT_e06758b2-251e-11ef-9890-00e18ce201d5_BIRTH-CERTIFICATE.jpg', '/storage/baptismal-certificates/STUDENT_e06758b2-251e-11ef-9890-00e18ce201d5_BAPTISMAL-CERTIFICATE.jpg', 7, 'e06758b2-251e-11ef-9890-00e18ce201d5');
 
 -- --------------------------------------------------------
 
@@ -960,22 +962,41 @@ CREATE TABLE `transactions` (
 INSERT INTO `transactions` (`id`, `created_at`, `transaction_number`, `payment_amount`, `payment_method`, `payment_receipt_url`, `payment_mode_id`) VALUES
 ('0990a7c9-2166-11ef-a4a2-0242a5745a66', '2024-06-03 04:59:20', '999', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('0ed87f2c-2401-11ef-90c3-00e18ce201d5', '2024-06-06 12:34:03', '4567890', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
+('12197abf-2513-11ef-9890-00e18ce201d5', '2024-06-07 21:15:31', '45634', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
+('14d1a9a2-253d-11ef-bf59-00e18ce201d5', '2024-06-08 02:59:54', '911', 20000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_0.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('1a8408d3-2407-11ef-90c3-00e18ce201d5', '2024-06-06 13:17:20', '9999999', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
+('210e79ec-253d-11ef-bf59-00e18ce201d5', '2024-06-08 03:00:14', '911', 20000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_0.jpg', 'bpi-pateros-catholic-school-12345679'),
+('224ac0da-253d-11ef-bf59-00e18ce201d5', '2024-06-08 03:00:17', '911', 20000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_0.jpg', 'bpi-pateros-catholic-school-12345679'),
+('22621384-253d-11ef-bf59-00e18ce201d5', '2024-06-08 03:00:17', '911', 20000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_0.jpg', 'bpi-pateros-catholic-school-12345679'),
+('2276fcfd-253d-11ef-bf59-00e18ce201d5', '2024-06-08 03:00:17', '911', 20000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_0.jpg', 'bpi-pateros-catholic-school-12345679'),
+('228de6ca-253d-11ef-bf59-00e18ce201d5', '2024-06-08 03:00:17', '911', 20000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_0.jpg', 'bpi-pateros-catholic-school-12345679'),
+('22a05bbd-253d-11ef-bf59-00e18ce201d5', '2024-06-08 03:00:17', '911', 20000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_0.jpg', 'bpi-pateros-catholic-school-12345679'),
+('22bd439d-253d-11ef-bf59-00e18ce201d5', '2024-06-08 03:00:17', '911', 20000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_0.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('2b7cd84c-206e-11ef-901b-00e18ce201d5', '2024-06-01 23:25:01', '111', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g10_3.jpg', 'bpi-pateros-catholic-school-12345679'),
+('31a4c294-2513-11ef-9890-00e18ce201d5', '2024-06-07 21:16:23', '25245455', 43434.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_6c4a7c00-2158-11ef-a4a2-0242a5745a66_g7_3.jpg', 'bpi-pateros-catholic-school-12345679'),
+('36e42205-24a1-11ef-b6e2-00e18ce201d5', '2024-06-07 07:40:30', '43344', 40012.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('452eda90-2400-11ef-90c3-00e18ce201d5', '2024-06-06 12:28:25', '55555555555', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('4543d674-2402-11ef-90c3-00e18ce201d5', '2024-06-06 12:42:44', '222', 20000.00, 'installment', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679'),
+('48820d6a-24e9-11ef-9890-00e18ce201d5', '2024-06-07 16:16:23', '23828392', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('58ef093f-2169-11ef-a4a2-0242a5745a66', '2024-06-03 05:23:01', '12121212', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('5f106fe6-206e-11ef-901b-00e18ce201d5', '2024-06-01 23:26:28', '222', 20000.00, 'installment', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('5fe29562-2400-11ef-90c3-00e18ce201d5', '2024-06-06 12:29:09', '55555555555', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('7dc1d897-2408-11ef-90c3-00e18ce201d5', '2024-06-06 13:27:15', '9999999', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
+('821133fc-253d-11ef-bf59-00e18ce201d5', '2024-06-08 03:02:57', '238273', 928283.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('85a6d15f-2402-11ef-90c3-00e18ce201d5', '2024-06-06 12:44:32', '222', 18000.00, 'installment', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('9c23f7a2-200c-11ef-86f8-00e18ce201d5', '2024-06-01 11:46:40', '222', 41000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('a523682a-2400-11ef-90c3-00e18ce201d5', '2024-06-06 12:31:06', '55555555555', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('a625cad8-240b-11ef-90c3-00e18ce201d5', '2024-06-06 13:49:52', '987654321', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
+('af1d6c6f-2512-11ef-9890-00e18ce201d5', '2024-06-07 21:12:44', '834834932', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_0.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('c3276506-23fb-11ef-90c3-00e18ce201d5', '2024-06-06 11:56:08', '2222222', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('c50579b8-2403-11ef-90c3-00e18ce201d5', '2024-06-06 12:53:28', '7777', 17500.00, 'installment', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g11_4.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('c8d9392a-2408-11ef-90c3-00e18ce201d5', '2024-06-06 13:29:21', '34343', 40040.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
+('cf360d52-24a6-11ef-b6e2-00e18ce201d5', '2024-06-07 08:20:33', '342342', 3233232.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g10_3.jpg', 'bpi-pateros-catholic-school-12345679'),
+('d50a5580-24a2-11ef-b6e2-00e18ce201d5', '2024-06-07 07:52:04', '23424', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g10_3.jpg', 'bpi-pateros-catholic-school-12345679'),
+('da3b12ad-24a4-11ef-b6e2-00e18ce201d5', '2024-06-07 08:06:32', '23232', 12414.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g10_3.jpg', 'bpi-pateros-catholic-school-12345679'),
+('db8b486a-2512-11ef-9890-00e18ce201d5', '2024-06-07 21:13:59', '434434', 50000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_0.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('dd358503-240a-11ef-90c3-00e18ce201d5', '2024-06-06 13:44:15', '1638712312389', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
+('e92bad41-24a3-11ef-b6e2-00e18ce201d5', '2024-06-07 07:59:48', '23232', 12414.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g10_3.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('ebb00ca4-23fb-11ef-90c3-00e18ce201d5', '2024-06-06 11:57:16', '2222222', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('edaa101e-2406-11ef-90c3-00e18ce201d5', '2024-06-06 13:16:04', '9999999', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
 ('f1514dd3-2408-11ef-90c3-00e18ce201d5', '2024-06-06 13:30:29', '99999', 40000.00, 'cash', '/storage/payment-receipts/PAYMENT-RECEIPT_STUDENT_edcb084a-197b-11ef-a11c-00e18ce201d5_g12_5.jpg', 'bpi-pateros-catholic-school-12345679'),
@@ -1051,12 +1072,13 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `created_at`, `first_name`, `middle_name`, `last_name`, `suffix_name`, `email`, `contact_number`, `role`, `avatar_url`, `password`) VALUES
-('57790e94-2156-11ef-a4a2-0242a5745a66', '2024-06-03 03:06:59', 'Hello', NULL, 'World', NULL, 'hello@gmail.com', '0987654321', 'student', NULL, '$2y$10$TYmDYngzklGkXrGEuEX7D.AP61tFE88TRpsdXXedZP1DOPBfK0f8S'),
+('3241660d-2516-11ef-9890-00e18ce201d5', '2024-06-07 21:37:53', 'Aaron', NULL, 'Melendres', 'Jr.', 'aaronjr@gmail.com', '1234', 'student', NULL, '$2y$10$kyNevSKXVG1PzxkPzVu8zedQM3/ifPMAg8C3QPSz/PQLcnV3WQpyC'),
+('57790e94-2156-11ef-a4a2-0242a5745a66', '2024-06-03 03:06:59', 'Goodbye', NULL, 'World', NULL, 'hello@gmail.com', '0987654321', 'student', NULL, '$2y$10$TYmDYngzklGkXrGEuEX7D.AP61tFE88TRpsdXXedZP1DOPBfK0f8S'),
 ('66844843-1e12-11ef-9209-00e18ce201d5', '2024-05-29 23:23:04', 'Hanni', NULL, 'My Love', NULL, 'hanni@gmail.com', '143', 'admin', NULL, '$2y$10$d1diUyACOG1Z0dPVR08e1eOzeW9cJVHuoRo8icq7N32SGGR8w0d.6'),
-('66b1695a-1bb6-11ef-8090-00e18ce201d5', '2024-05-26 23:19:29', 'Samantha Althea', 'Perlas', 'Oris', NULL, 'samantha@gmail.com', '0123456789', 'student', NULL, '$2y$10$1FxYXz/9laSFZFH57caJzO24h6GP4QESzWUjL7ZYHRfQ7a96bak3i'),
 ('6c4a7c00-2158-11ef-a4a2-0242a5745a66', '2024-06-03 03:21:52', 'Izuku', NULL, 'Midoriya', NULL, 'deku@gmail.com', '555', 'student', NULL, '$2y$10$5XM9a3VrGECY0BWVvgt2CeRi9j0YbR4pJCCtmmWZaqDxfvM/0VUrC'),
 ('8accfe15-1d6f-11ef-9953-00e18ce201d5', '2024-05-29 03:57:17', 'Rhenz', NULL, 'Ganotice', NULL, 'rhenz@gmail.com', '123', 'parent', NULL, '$2y$10$5LXJYzX6SeS9MIx.gDUjT..ClJNDilw51t/MXQeVURSRNh3TCmkj6'),
 ('b00cf259-197c-11ef-a11c-00e18ce201d5', '2024-05-24 03:21:19', 'Gojo', NULL, 'Satoru', NULL, 'admin@gmail.com', '1234', 'admin', NULL, '$2y$10$u2RssLCI91Oo2f6igDYZveUwS0cYQh63j/sokVpOCkbQSIFxU.gEi'),
+('e06758b2-251e-11ef-9890-00e18ce201d5', '2024-06-07 22:40:01', 'Delete', NULL, 'Delete', NULL, 'deletethis@gmail.com', '87877', 'student', NULL, '$2y$10$xIh5n0R/5.nHMAWBFVNY4urx5gX4j1DE5oRwlsHacVJtHzInKgfFO'),
 ('edcb084a-197b-11ef-a11c-00e18ce201d5', '2024-05-24 03:15:53', 'Lorena', NULL, 'Sanchez', NULL, 'giordnnuz27@gmail.com', '1234', 'student', 'https://i.pinimg.com/736x/3c/2f/90/3c2f901d02252bca7fc2fabfdfcf896a.jpg', '$2y$10$O.g10gwAcVFRD.iUXPA7m.A86jdLMhUVjPkKE8XAf4Uk44ZDUZ/aq'),
 ('f93a2ed0-19a5-11ef-ac3d-00e18ce201d5', '2024-05-24 08:16:51', 'Aaron', NULL, 'Melendres', NULL, 'giordnnuz.dummy@gmail.com', '111', 'parent', NULL, '$2y$10$vGbAlELtlvj2bLhy12tICun/CDXQg/y0pBIOw4GQT2qYUtlZqoT/W');
 
@@ -1350,25 +1372,25 @@ ALTER TABLE `academic_years`
 -- AUTO_INCREMENT for table `addresses`
 --
 ALTER TABLE `addresses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `enrollment_transactions`
 --
 ALTER TABLE `enrollment_transactions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `report_cards`
 --
 ALTER TABLE `report_cards`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `section_assignments`
 --
 ALTER TABLE `section_assignments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `section_assignment_strands`
