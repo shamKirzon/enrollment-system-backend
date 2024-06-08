@@ -59,6 +59,25 @@ switch ($_SERVER['REQUEST_METHOD']) {
     break;
 
   case 'PATCH':
+    $json_data = json_decode(file_get_contents('php://input'), true);
+
+    $amount = $json_data['amount'];
+    $id = $json_data['id'];
+
+    try {
+      $stmt = $pdo->prepare("
+    UPDATE enrollment_fee_levels
+    SET amount = ?
+    WHERE id = ?
+        ");
+      $stmt->execute([$amount, $id]);
+
+    http_response_code(200); 
+    echo json_encode(['message' => "Successfully updated enrollment fee."]);
+    } catch (\Throwable $th) {
+    http_response_code($th->getCode()); 
+    echo json_encode(['message' => "Failed to update enrollment fee."]);
+    }
     break;
 
   case 'DELETE':
